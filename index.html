@@ -21,7 +21,12 @@
     --good: #b9c46a;
     --warn: #dfa437;
     --crit: #e06a4b;
+    --slab: "Alfa Slab One", Rockwell, "Courier New", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
   }
+  /* Deliberately single-theme: the operator ruled "always-night" for this
+     page — it is a 1970s title card, and a light mode would be a different
+     object. Not an omission. */
   * { box-sizing: border-box; margin: 0; }
   html { height: 100%; }
   body {
@@ -44,7 +49,10 @@
   .wrap {
     max-width: 26rem;
     margin: 0 auto;
-    padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1.3rem 2.5rem;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 2rem)
+      1.3rem
+      calc(env(safe-area-inset-bottom, 0px) + 2.5rem);
   }
 
   .eyebrow {
@@ -57,7 +65,7 @@
   #title {
     text-align: center;
     margin: 0.5rem 0 0.1rem;
-    font-family: "Alfa Slab One", Rockwell, "Courier New", Georgia, serif;
+    font-family: var(--slab);
     font-weight: 400;
     font-size: 2.9rem;
     line-height: 1.05;
@@ -87,37 +95,139 @@
   }
   #reasons.show { display: block; }
 
-  #credits { border-top: 1px solid var(--rule); padding-top: 1rem; display: none; }
-  #credits.show { display: block; }
-  .crow { display: flex; align-items: baseline; padding: 0.3rem 0; }
-  .crow .k {
-    letter-spacing: 0.18em;
-    font-size: 0.68rem;
-    text-transform: uppercase;
+  /* ---- section chrome: an end-credits rule, not a card ---- */
+  section { display: none; margin-top: 1.9rem; }
+  section.show { display: block; }
+  h2 {
+    font-size: 0.66rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold); font-weight: 400; text-align: center;
+    margin-bottom: 0.9rem; font-family: Georgia, serif;
+    border-top: 1px solid var(--rule); padding-top: 0.9rem;
+  }
+
+  /* ---- the case: what we are waiting for ---- */
+  .fam + .fam { margin-top: 1.2rem; }
+  .phase {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
     color: var(--gold);
+  }
+  .phase .day {
+    color: var(--ink); font-family: var(--mono); letter-spacing: 0.06em;
     white-space: nowrap;
   }
-  .crow .dots { flex: 1; border-bottom: 1px dotted var(--rule); margin: 0 0.5rem; }
-  .crow .v {
-    font: 600 0.95rem ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-  }
-  .crow .v small { display: block; font-weight: 400; font-size: 0.62rem; color: var(--note); }
 
-  #notes { margin-top: 1.4rem; display: none; }
-  #notes.show { display: block; }
-  #notes h3 {
-    font-size: 0.68rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin: 0 0 0.45rem;
-    text-align: center;
-    font-weight: 400;
+  /* punch-card tick strip — the film-perforation motif, not a rounded pill */
+  .ticks {
+    display: flex; gap: 2px; margin: 0.55rem 0 0.4rem;
+    height: 1.1rem; align-items: stretch;
   }
+  .ticks i {
+    flex: 1; border: 1px solid var(--rule); border-radius: 1px;
+    background: transparent; min-width: 0;
+  }
+  .ticks i.on { background: var(--good); border-color: var(--good); }
+  .ticks i.now { background: var(--warn); border-color: var(--warn); }
+  .caption { font-size: 0.68rem; color: var(--note); font-style: italic; }
+  .caption b { color: var(--ink); font-style: normal; font-weight: 400; }
+
+  .bigcount {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin: 1.15rem 0 0.15rem;
+  }
+  .bigcount .n {
+    font-family: var(--slab); font-size: 2.1rem; line-height: 1;
+    color: var(--gold-dim); font-variant-numeric: tabular-nums;
+  }
+  .bigcount .of {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--note);
+    font-variant-numeric: tabular-nums;
+  }
+  .bigcount .lbl {
+    margin-left: auto; font-size: 0.6rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold-dim);
+  }
+
+  .dormant {
+    border: 1px dashed var(--rule); padding: 0.7rem 0.8rem;
+    text-align: center;
+  }
+  .dormant .k {
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  .dormant p { font-size: 0.72rem; color: var(--note); font-style: italic; margin-top: 0.3rem; }
+
+  /* ---- scorecard + ledger rows share the end-credits shape ---- */
+  .crow { display: flex; align-items: baseline; padding: 0.28rem 0; }
+  .crow .k {
+    letter-spacing: 0.16em; font-size: 0.66rem; text-transform: uppercase;
+    color: var(--gold); white-space: nowrap;
+  }
+  .crow .k em {
+    font-style: normal; color: var(--gold-dim); font-family: var(--mono);
+    letter-spacing: 0; margin-right: 0.4rem;
+  }
+  .crow .dots { flex: 1; border-bottom: 1px dotted var(--rule); margin: 0 0.5rem; min-width: 0.8rem; }
+  .crow .v {
+    font: 600 0.9rem var(--mono); font-variant-numeric: tabular-nums;
+    text-align: right; white-space: nowrap;
+  }
+  .crow .v small { display: block; font-weight: 400; font-size: 0.6rem; color: var(--note); }
+  .st {
+    font: 400 0.58rem Georgia, serif; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 0.1rem 0.4rem;
+    border: 1px solid currentColor; border-radius: 1px; white-space: nowrap;
+  }
+  .st.sealed { color: var(--gold-dim); }
+  .st.running { color: var(--warn); }
+  .st.diag { color: var(--note); }
+  .envelope {
+    text-align: center; font-style: italic; font-size: 0.75rem;
+    color: var(--gold-dim); margin-top: 0.9rem;
+  }
+
+  /* ---- latest observation: the instrument thinking out loud ---- */
+  .spec { border: 1px solid var(--rule); padding: 0.85rem 0.9rem; }
+  .spec .tick {
+    display: none;
+    font: 0.68rem var(--mono); color: var(--gold); overflow-wrap: anywhere;
+  }
+  .spec .tick.show { display: block; }
+  .spec .nums {
+    display: none; gap: 0.9rem; align-items: baseline; flex-wrap: wrap;
+  }
+  .spec .nums.show { display: flex; }
+  .spec .tick.show + .nums.show { margin-top: 0.6rem; }
+  .spec .nums div { display: flex; flex-direction: column; gap: 0.1rem; }
+  .spec .nums span {
+    font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  .spec .nums strong {
+    font: 400 1.05rem var(--mono); font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .spec .nums strong.edge { color: var(--warn); }
+  .spec .when {
+    display: none;
+    margin-top: 0.6rem; font-size: 0.64rem; color: var(--note); font-style: italic;
+  }
+  .spec .when.show { display: block; }
+
+  /* ---- the ledger ---- */
+  #streak {
+    display: none;
+    text-align: center; font-size: 0.72rem; color: var(--note);
+    font-style: italic; margin-top: 0.8rem;
+  }
+  #streak.show { display: block; }
+  #streak b { color: var(--good); font-style: normal; font-weight: 400; }
+
+  /* ---- field notes ---- */
   #notes p {
-    font: 0.68rem/1.6 ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    font: 0.67rem/1.6 var(--mono);
     color: var(--note);
     margin: 0.25rem 0;
     overflow-wrap: anywhere;
@@ -141,7 +251,7 @@
   }
   #line.show { display: block; }
   #line code {
-    font: 0.78rem ui-monospace, Consolas, monospace;
+    font: 0.78rem var(--mono);
     color: var(--ink);
     overflow-wrap: anywhere;
   }
@@ -154,21 +264,43 @@
   <div id="sub"></div>
   <p id="reasons"></p>
 
-  <div id="credits">
-    <div class="crow"><span class="k">Last cycle</span><span class="dots"></span><span class="v" id="t-cycle">–</span></div>
-    <div class="crow"><span class="k">Heartbeat</span><span class="dots"></span><span class="v" id="t-heart">–</span></div>
+  <section id="case">
+    <h2>The case</h2>
+    <div id="case-body"></div>
+  </section>
+
+  <section id="scorecard">
+    <h2>The scorecard</h2>
+    <div id="score-body"></div>
+    <p class="envelope">“the envelope opens when the window closes”</p>
+  </section>
+
+  <section id="latest">
+    <h2>Latest observation</h2>
+    <div class="spec">
+      <div class="tick" id="o-ticker"></div>
+      <div class="nums" id="o-nums"></div>
+      <p class="when" id="o-when"></p>
+    </div>
+  </section>
+
+  <section id="credits">
+    <h2>The ledger</h2>
+    <div class="crow"><span class="k">Observations</span><span class="dots"></span><span class="v" id="t-evals">–</span></div>
+    <div class="crow"><span class="k">Settled</span><span class="dots"></span><span class="v" id="t-settle">–</span></div>
     <div class="crow"><span class="k">Cycles today</span><span class="dots"></span><span class="v" id="t-cycles">–</span></div>
     <div class="crow"><span class="k">Gaps · 24h</span><span class="dots"></span><span class="v" id="t-gaps">–</span></div>
-    <div class="crow"><span class="k">Evaluations</span><span class="dots"></span><span class="v" id="t-evals">–</span></div>
-    <div class="crow"><span class="k">Settlements</span><span class="dots"></span><span class="v" id="t-settle">–</span></div>
+    <div class="crow"><span class="k">Last cycle</span><span class="dots"></span><span class="v" id="t-cycle">–</span></div>
+    <div class="crow"><span class="k">Heartbeat</span><span class="dots"></span><span class="v" id="t-heart">–</span></div>
     <div class="crow"><span class="k">Credits · run</span><span class="dots"></span><span class="v" id="t-run">–</span></div>
     <div class="crow"><span class="k">Credits · month</span><span class="dots"></span><span class="v" id="t-month">–</span></div>
-  </div>
+    <p id="streak"></p>
+  </section>
 
-  <div id="notes">
-    <h3>Tonight's notes</h3>
+  <section id="notes">
+    <h2>Field notes</h2>
     <div id="alerts"></div>
-  </div>
+  </section>
 
   <p id="line"></p>
   <div id="checked"></div>
@@ -177,8 +309,21 @@
 <script>
 (function () {
   "use strict";
-  var REPO = "ericlawson/columbo-status";
+  var REPO = "muktapitri/columbo-status";
   var STALE_MIN = 20;
+  // Sections that only exist once the publisher grows the fields that feed
+  // them. Everything here is presence-gated: schema 1 (no new keys) must
+  // render as a complete, intentional page with these simply absent.
+  var EXTRA = ["case", "scorecard", "latest"];
+  var MAX_TICKS = 60;   // longer phases compress; the strip never shreds
+  var PHASE = {
+    not_started: "clock not started",
+    in_sample: "building the baseline",
+    out_of_sample: "accumulating evidence",
+    closed: "window closed"
+  };
+  var CHIP = { sealed: "sealed", running: "running", diagnostic: "diag" };
+  var FAMILY_ORDER = ["sports", "weather", "econ"];
   var el = function (id) { return document.getElementById(id); };
 
   function token() {
@@ -187,13 +332,79 @@
     try { return localStorage.getItem("columbo-t"); } catch (e) { return null; }
   }
 
+  // -- payload coercion: nothing reaches the DOM unless it is the type we
+  //    expect. A missing or malformed field yields null and its element is
+  //    left out entirely — never "undefined", "NaN" or an empty box.
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+  function str(v, cap) {
+    if (typeof v !== "string") return null;
+    var s = v.trim();
+    return s ? s.slice(0, cap || 120) : null;
+  }
+  function parseDate(v) {
+    var s = str(v, 32);
+    if (!s) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+    if (!m) return null;
+    var y = +m[1], mo = +m[2], da = +m[3];
+    if (mo < 1 || mo > 12 || da < 1 || da > 31) return null;
+    var dt = new Date(Date.UTC(y, mo - 1, da));
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+  function dateWords(dt) {
+    if (!dt) return null;
+    return dt.toLocaleDateString("en-US", {
+      month: "short", day: "numeric", timeZone: "UTC"
+    }).toLowerCase();
+  }
+
   function age(s) {
     if (s == null) return "unknown";
     if (s < 120) return Math.round(s) + "s ago";
     if (s < 7200) return Math.round(s / 60) + " min ago";
     return (s / 3600).toFixed(1) + " h ago";
   }
+  function ageWords(s) {           // prose form, for the observation line
+    if (!isNum(s) || s < 0) return null;   // a negative age is nonsense: omit
+    var v = s;
+    if (v < 120) return plural(Math.round(v), "second") + " ago";
+    if (v < 7200) return plural(Math.round(v / 60), "minute") + " ago";
+    return (v / 3600).toFixed(1) + " hours ago";
+  }
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
   function num(n) { return n == null ? "–" : n.toLocaleString("en-US"); }
+  function titleCase(s) {
+    return s.replace(/[_-]+/g, " ").replace(/\b\w/g, function (c) {
+      return c.toUpperCase();
+    });
+  }
+
+  // -- tiny DOM builders (textContent only — the payload is never markup) --
+  function tag(name, cls, text) {
+    var n = document.createElement(name);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  // Sentence made of plain strings and {b: "..."} emphasis, assembled as
+  // nodes so payload-derived words can never become markup.
+  function say(node, parts) {
+    node.textContent = "";
+    parts.forEach(function (p) {
+      if (p == null) return;
+      if (typeof p === "string") node.appendChild(document.createTextNode(p));
+      else if (p.b) node.appendChild(tag("b", null, p.b));
+    });
+    return node;
+  }
+
+  // A verdict with an empty/garbled reasons list must not print bare quotes.
+  function quoted(reasons) {
+    var s = (Array.isArray(reasons) ? reasons : [])
+      .map(function (r) { return str(r, 200); })
+      .filter(Boolean).join("; ");
+    return s ? "“" + s + "”" : "";
+  }
 
   function card(cls, eyebrow, title, sub, reasons) {
     document.body.className = cls;
@@ -206,62 +417,297 @@
   function showData(show) {
     el("credits").classList.toggle("show", show);
     el("notes").classList.toggle("show", show);
+    if (!show) {
+      EXTRA.forEach(function (id) { el(id).classList.remove("show"); });
+    }
   }
   function line(html) {
-    el("line").innerHTML = html || "";
+    el("line").innerHTML = html || "";   // app-authored strings only
     el("line").classList.toggle("show", !!html);
   }
 
+  // -- the case ---------------------------------------------------------
+  function tickStrip(day, total, aria) {
+    var strip = tag("div", "ticks");
+    strip.setAttribute("role", "img");
+    strip.setAttribute("aria-label", aria);
+    var n = Math.min(total, MAX_TICKS);
+    for (var i = 0; i < n; i++) {
+      var start = Math.floor((i * total) / n) + 1;
+      var end = Math.floor(((i + 1) * total) / n);
+      var cls = day >= start && day <= end ? "now" : end < day ? "on" : "";
+      strip.appendChild(tag("i", cls));
+    }
+    return strip;
+  }
+
+  function caseBlock(key, f) {
+    if (!f || typeof f !== "object") return null;
+    var phase = str(f.phase, 24);
+    if (!phase) return null;                       // nothing honest to say
+    var known = Object.prototype.hasOwnProperty.call(PHASE, phase);
+    var word = known ? PHASE[phase] : phase.replace(/[_-]+/g, " ");
+    var name = titleCase(str(key, 40) || "");
+    var fam = tag("div", "fam");
+
+    // Clock not started — or a phase this build does not know: the dashed
+    // block, never numbers.
+    if (!known || phase === "not_started") {
+      var box = tag("div", "dormant");
+      box.appendChild(tag("div", "k", name + " · " + word));
+      var note = str(f.note, 160);
+      if (note) box.appendChild(tag("p", null, note));
+      fam.appendChild(box);
+      return fam;
+    }
+
+    var row = tag("div", "phase");
+    row.appendChild(tag("span", null, name + " · " + word));
+    var day = isNum(f.day) ? Math.round(f.day) : null;
+    var span = isNum(f.phase_days) ? Math.round(f.phase_days) : null;
+    if (day != null && span != null && span >= 1) {
+      day = Math.min(Math.max(day, 1), span);
+      row.appendChild(tag("span", "day", "day " + day + " / " + span));
+    } else {
+      day = null;
+    }
+    fam.appendChild(row);
+    if (day != null) {
+      fam.appendChild(tickStrip(day, span,
+        name + ", " + word + ", day " + day + " of " + span));
+    }
+
+    var opens = parseDate(f.window_open);
+    var closes = parseDate(f.window_close);
+    var oos = parseDate(f.out_of_sample_opens);
+    var parts = null;
+    if (phase === "in_sample") {
+      if (oos) {
+        var lastIn = dateWords(new Date(oos.getTime() - 86400000));
+        parts = ["In-sample runs to ", { b: lastIn },
+          ". The evidence that decides the verdict starts accumulating ",
+          { b: dateWords(oos) }, " — nothing before it counts, by design."];
+      }
+    } else if (phase === "out_of_sample") {
+      parts = closes
+        ? ["Out-of-sample runs to ", { b: dateWords(closes) },
+           ". Everything logged from here counts toward the verdict."]
+        : ["Everything logged from here counts toward the verdict."];
+    } else if (phase === "closed") {
+      parts = opens && closes
+        ? ["The window ran ", { b: dateWords(opens) }, " to ",
+           { b: dateWords(closes) }, ". Nothing logged after it counts."]
+        : closes
+          ? ["The window closed ", { b: dateWords(closes) },
+             ". Nothing logged after it counts."]
+          : ["The window is closed. Nothing logged after it counts."];
+    }
+    if (parts) fam.appendChild(say(tag("p", "caption"), parts));
+
+    if (isNum(f.v1_count)) {
+      var big = tag("div", "bigcount");
+      big.appendChild(tag("span", "n", num(Math.round(f.v1_count))));
+      if (isNum(f.v1_target)) {
+        big.appendChild(tag("span", "of",
+          "/ " + num(Math.round(f.v1_target)) + " needed"));
+      }
+      big.appendChild(tag("span", "lbl", "V1 evidence"));
+      fam.appendChild(big);
+      fam.appendChild(tag("p", "caption",
+        "Out-of-sample observations above threshold." +
+        (phase === "in_sample" ? " The window hasn't opened yet." : "")));
+    }
+    return fam;
+  }
+
+  function renderCase(data) {
+    var body = el("case-body");
+    body.textContent = "";
+    if (!data || typeof data !== "object" || Array.isArray(data)) return false;
+    var keys = Object.keys(data).filter(function (k) {
+      return FAMILY_ORDER.indexOf(k) >= 0;
+    }).sort(function (a, b) {
+      return FAMILY_ORDER.indexOf(a) - FAMILY_ORDER.indexOf(b);
+    }).concat(Object.keys(data).filter(function (k) {
+      return FAMILY_ORDER.indexOf(k) < 0;
+    }).sort());
+    keys.forEach(function (k) {
+      var block = caseBlock(k, data[k]);
+      if (block) body.appendChild(block);
+    });
+    return body.childNodes.length > 0;
+  }
+
+  // -- the scorecard ----------------------------------------------------
+  function scoreRow(r) {
+    if (!r || typeof r !== "object") return null;
+    var id = str(r.id, 8), label = str(r.label, 64);
+    if (!id || !label) return null;
+    // The leader row is one nowrap line at 26rem: a runaway label would push
+    // the page sideways, so it is clipped rather than allowed to overflow.
+    if (label.length > 32) label = label.slice(0, 31).replace(/\s+$/, "") + "…";
+    var row = tag("div", "crow");
+    var k = tag("span", "k");
+    k.appendChild(tag("em", null, id));
+    k.appendChild(document.createTextNode(label));
+    row.appendChild(k);
+    row.appendChild(tag("span", "dots"));
+
+    var state = str(r.state, 24);
+    if (state === "counting") {
+      var v = isNum(r.value) ? num(r.value) : str(r.value, 24);
+      row.appendChild(tag("span", "v", v || "–"));
+    } else {
+      // THE SEAL. Any state that is not "counting" renders its word and
+      // nothing else — r.value is not read at all, here or anywhere. The
+      // publisher omits it; this is the second lock on the same door.
+      row.appendChild(tag("span", "st " + (CHIP[state] || "sealed"),
+        state ? state.replace(/[_-]+/g, " ") : "sealed"));
+    }
+    return row;
+  }
+
+  function renderScorecard(rows) {
+    var body = el("score-body");
+    body.textContent = "";
+    if (!Array.isArray(rows)) return false;
+    rows.slice(0, 12).forEach(function (r) {
+      var row = scoreRow(r);
+      if (row) body.appendChild(row);
+    });
+    return body.childNodes.length > 0;
+  }
+
+  // -- latest observation -----------------------------------------------
+  function prob(v) { return isNum(v) ? v.toFixed(4) : null; }
+  function cents(v) {
+    if (!isNum(v)) return null;
+    var sign = v < 0 ? "−" : v > 0 ? "+" : "";
+    return sign + Math.abs(v).toFixed(2) + "¢";
+  }
+  function numCol(label, text, cls) {
+    var col = tag("div");
+    col.appendChild(tag("span", null, label));
+    col.appendChild(tag("strong", cls, text));
+    return col;
+  }
+
+  function renderLatest(o) {
+    var ticker = el("o-ticker"), nums = el("o-nums"), when = el("o-when");
+    nums.textContent = "";
+    ticker.textContent = "";
+    when.textContent = "";
+    ticker.classList.remove("show");
+    nums.classList.remove("show");
+    when.classList.remove("show");
+    if (!o || typeof o !== "object" || Array.isArray(o)) return false;
+
+    var tick = str(o.ticker, 120);
+    ticker.textContent = tick || "";
+    ticker.classList.toggle("show", !!tick);
+
+    var model = prob(o.model_probability);
+    var market = prob(o.market_probability);
+    var edge = cents(o.net_edge_cents);
+    if (model) nums.appendChild(numCol("model", model));
+    if (market) nums.appendChild(numCol("market", market));
+    if (edge) nums.appendChild(numCol("net edge", edge, "edge"));
+    nums.classList.toggle("show", nums.childNodes.length > 0);
+
+    var bits = [];
+    var model_id = str(o.model_id, 80);
+    if (model_id) bits.push(model_id);
+    var ago = ageWords(o.age_s);
+    if (ago) bits.push(ago);
+    if (typeof o.pre_event === "boolean") {
+      bits.push(o.pre_event ? "pre-event" : "in-play");
+    }
+    when.textContent = bits.join(" · ");
+    when.classList.toggle("show", bits.length > 0);
+
+    return !!tick || nums.childNodes.length > 0;
+  }
+
+  // -- the whole page ----------------------------------------------------
   function render(d) {
-    var gen = new Date(d.generated_at);
+    // `schema` is deliberately not branched on: the page renders whatever
+    // fields are actually present, so schema 1 and schema 2 both work and a
+    // future bump cannot blank it.
+    var stamp = str(d.generated_at, 32);
+    var gen = stamp ? new Date(stamp) : null;
+    if (!gen || isNaN(gen.getTime())) {
+      card("crit", "Columbo · interrupted", "STALE", "",
+        "the last report carries no timestamp");
+      showData(false); line("");
+      return;
+    }
     var staleMin = (Date.now() - gen.getTime()) / 60000;
-    var when = "logged " + d.generated_at.slice(11, 16) + "Z · " +
-      gen.toLocaleDateString("en-US", { month: "long", day: "numeric" }).toLowerCase();
+    var hhmm = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.exec(stamp);
+    // The clock beside it is stamped Z, so the date is UTC too: without this
+    // a 02:49Z publish read "logged 02:49Z · july 25" on a UTC-7 phone.
+    var when = (hhmm ? "logged " + hhmm[1] + "Z · " : "logged ") +
+      gen.toLocaleDateString("en-US", {
+        month: "long", day: "numeric", timeZone: "UTC"
+      }).toLowerCase();
 
     if (staleMin > STALE_MIN) {
       card("crit", "Columbo · interrupted", "STALE",
         when, "no fresh publish in " + Math.round(staleMin) + " minutes");
     } else if (d.verdict === "red") {
       card("crit", "Columbo · in tonight's episode", "NEEDS EYES",
-        when, "“" + (d.reasons || []).join("; ") + "”");
+        when, quoted(d.reasons));
     } else if (d.verdict === "yellow") {
       card("warn", "Columbo · in tonight's episode", "ATTENTION",
-        when, "“" + (d.reasons || []).join("; ") + "”");
+        when, quoted(d.reasons));
     } else {
       card("good", "Columbo · in tonight's episode", "HEALTHY", when, "");
     }
     line("");
     showData(true);
 
+    el("case").classList.toggle("show", renderCase(d.case));
+    el("scorecard").classList.toggle("show", renderScorecard(d.scorecard));
+    el("latest").classList.toggle("show", renderLatest(d.latest_observation));
+
     el("t-cycle").textContent = age(d.last_cycle_age_s);
     el("t-heart").textContent = age(d.heartbeat_age_s);
     el("t-cycles").textContent = num(d.cycles_today);
     el("t-gaps").textContent = num(d.gaps_24h);
-    el("t-evals").textContent = num(d.evaluations_today) + " / " + num(d.evaluations_total);
     el("t-settle").textContent = num(d.settlements_total);
     el("t-run").textContent = num(d.run_spent) + (d.credit_cap ? " / " + num(d.credit_cap) : "");
-    var month = el("t-month");
-    month.textContent = "";
-    month.appendChild(document.createTextNode(num(d.monthly_used) + " used"));
-    if (d.monthly_remaining != null) {
-      var small = document.createElement("small");
-      small.textContent = num(d.monthly_remaining) + " remaining";
-      month.appendChild(small);
+
+    var evals = el("t-evals");
+    evals.textContent = num(d.evaluations_today) + " / " + num(d.evaluations_total);
+    if (isNum(d.evaluations_in_window)) {
+      evals.appendChild(tag("small", null,
+        num(Math.round(d.evaluations_in_window)) + " in-window"));
     }
+
+    var month = el("t-month");
+    month.textContent = num(d.monthly_used) + " used";
+    if (d.monthly_remaining != null) {
+      month.appendChild(tag("small", null, num(d.monthly_remaining) + " remaining"));
+    }
+
+    var streak = el("streak");
+    var days = isNum(d.streak_days) && d.streak_days >= 0
+      ? Math.floor(d.streak_days) : null;
+    if (days != null) {
+      say(streak, ["Collecting ", { b: plural(days, "day") },
+        " without a missed cycle."]);
+    } else {
+      streak.textContent = "";
+    }
+    streak.classList.toggle("show", days != null);
 
     var alerts = el("alerts");
     alerts.textContent = "";
     if (d.alerts && d.alerts.length) {
       d.alerts.slice().reverse().forEach(function (a) {
-        var p = document.createElement("p");
-        p.textContent = a;
-        alerts.appendChild(p);
+        alerts.appendChild(tag("p", null, String(a)));
       });
     } else {
-      var none = document.createElement("p");
-      none.className = "none";
-      none.textContent = "nothing in the notebook";
-      alerts.appendChild(none);
+      alerts.appendChild(tag("p", "none", "nothing in the notebook"));
     }
   }
 
