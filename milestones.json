@@ -1,0 +1,9 @@
+[
+  { "when": "2026-07-27T18:00:00Z", "label": "S12 calibration fit — hold the 6b commit" },
+  { "when": "2026-07-28T15:00:00Z", "label": "read the 24h watch gate G1–G7" },
+  { "when": "2026-07-28T15:30:00Z", "label": "settlement concordance — Kalshi vs NWS CLI" },
+  { "when": "2026-07-28T20:06:00Z", "label": "6c ship window (only if the watch is green)" },
+  { "when": "2026-07-31", "label": "confirm August Odds API plan" },
+  { "when": "2026-08-14", "label": "out-of-sample opens — evidence starts counting" },
+  { "when": "2026-09-27", "label": "MLB season close — weather carries the case" }
+]

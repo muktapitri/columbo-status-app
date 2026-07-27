@@ -21,6 +21,12 @@
     --good: #b9c46a;
     --warn: #dfa437;
     --crit: #e06a4b;
+    /* Series identity (dataviz-validated 2026-07-27: dark surface #241608,
+       all six checks pass, worst-pair CVD dE 21.8 / normal 22.9). Marks only —
+       text never wears these. */
+    --series-sports: #b98432;
+    --series-weather: #5b8fd0;
+    --grid: #33210f;
     --slab: "Alfa Slab One", Rockwell, "Courier New", Georgia, serif;
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
   }
@@ -105,6 +111,21 @@
     border-top: 1px solid var(--rule); padding-top: 0.9rem;
   }
 
+  /* ---- intercept schedule: the sniper's clock (the signature) ---- */
+  #i-next {
+    text-align: center; font-size: 0.8rem; color: var(--note);
+    font-style: italic; margin-bottom: 0.55rem;
+  }
+  #i-next b { color: var(--ink); font-style: normal; font-weight: 400; }
+  .rail-wrap svg { display: block; width: 100%; height: auto; }
+  .rail-slot { fill: var(--gold-dim); }
+  .rail-track { stroke: var(--grid); stroke-width: 1; }
+  .rail-now { fill: var(--gold); }
+  .rail-tick { font: 8.5px var(--mono); fill: var(--gold-dim); letter-spacing: 0.08em; }
+  @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .rail-now-dot { animation: breathe 3s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .rail-now-dot { animation: none; } }
+
   /* ---- the case: what we are waiting for ---- */
   .fam + .fam { margin-top: 1.2rem; }
   .phase {
@@ -136,9 +157,11 @@
     display: flex; align-items: baseline; gap: 0.5rem;
     margin: 1.15rem 0 0.15rem;
   }
+  /* Proportional figures on the big standalone number (tabular is reserved
+     for aligned columns — the dataviz rule; "121" reads loose in tabular). */
   .bigcount .n {
     font-family: var(--slab); font-size: 2.1rem; line-height: 1;
-    color: var(--gold-dim); font-variant-numeric: tabular-nums;
+    color: var(--gold-dim);
   }
   .bigcount .of {
     font-family: var(--mono); font-size: 0.8rem; color: var(--note);
@@ -158,6 +181,131 @@
     color: var(--gold-dim);
   }
   .dormant p { font-size: 0.72rem; color: var(--note); font-style: italic; margin-top: 0.3rem; }
+
+  /* ---- surveillance + evidence locker: the lanes ---- */
+  .lane + .lane { margin-top: 0.9rem; }
+  .lane-head {
+    display: flex; align-items: baseline; gap: 0.45rem;
+    font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .lane-head .swatch {
+    width: 0.55rem; height: 0.55rem; border-radius: 1px; flex: none;
+    align-self: center;
+  }
+  .lane-head .tot {
+    margin-left: auto; font: 600 0.8rem var(--mono); color: var(--ink);
+    letter-spacing: 0; text-transform: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .lane-head .tot small { font-weight: 400; font-size: 0.6rem; color: var(--note); margin-left: 0.3rem; }
+  .lane svg { display: block; width: 100%; height: auto; margin-top: 0.3rem; }
+  .lane .base { stroke: var(--grid); stroke-width: 1; }
+  .lane .peak { font: 9px var(--mono); fill: var(--note); }
+  .lane .end-label { font: 600 10px var(--mono); fill: var(--ink); }
+  .lane .axis-tick { font: 8.5px var(--mono); fill: var(--gold-dim); letter-spacing: 0.08em; }
+  .lane .record {
+    font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--warn); margin-top: 0.15rem;
+  }
+
+  /* ---- meters (expenses + probe age): draft .track/.fill idiom ---- */
+  .meter { margin: 0.45rem 0 0.7rem; }
+  .meter .mrow {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .meter .mrow .mv {
+    margin-left: auto; font: 600 0.78rem var(--mono); color: var(--ink);
+    letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums;
+  }
+  .meter .mrow .mv small { font-weight: 400; color: var(--note); }
+  .meter .track {
+    height: 0.55rem; border: 1px solid var(--rule); border-radius: 1px;
+    position: relative; margin-top: 0.3rem;
+    background: rgba(125, 106, 74, 0.12);   /* lighter step of the same ramp */
+  }
+  .meter .fill {
+    position: absolute; inset: 0 auto 0 0; background: var(--gold);
+    border-radius: 1px;
+  }
+  .meter .fill.warn { background: var(--warn); }
+  .meter .fill.crit { background: var(--crit); }
+  .meter .state {
+    font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+    margin-top: 0.2rem; color: var(--note);
+  }
+  .meter .state.warn { color: var(--warn); }
+  .meter .state.crit { color: var(--crit); }
+
+  /* ---- the docket ---- */
+  .docket-row { display: flex; align-items: baseline; padding: 0.3rem 0; gap: 0.5rem; }
+  .docket-row .when {
+    font: 0.68rem var(--mono); color: var(--ink); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .docket-row .dots { flex: 1; border-bottom: 1px dotted var(--rule); min-width: 0.8rem; }
+  .docket-row .what { font-size: 0.72rem; color: var(--note); text-align: right; }
+  .docket-row.next .what, .docket-row.next .when { color: var(--ink); }
+  .docket-row .st { margin-left: 0.3rem; }
+
+  /* ---- commendations: the case-file stamps ---- */
+  #stamps { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; }
+  .stamp {
+    width: calc(25% - 0.45rem);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: 0.5rem 0.2rem 0.4rem; text-align: center;
+  }
+  .stamp .big { font-family: var(--slab); font-size: 1rem; line-height: 1; color: var(--rule); }
+  .stamp .cap {
+    font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold-dim); margin-top: 0.3rem; line-height: 1.4;
+  }
+  .stamp.earned { border-color: var(--gold-dim); transform: rotate(-1.2deg); }
+  .stamp.earned .big { color: var(--gold); text-shadow: 0 0 10px rgba(201,160,92,0.25); }
+  .stamp.earned .cap { color: var(--note); }
+  .stamp.earned:nth-child(even) { transform: rotate(1deg); }
+  #stamp-next {
+    text-align: center; font-size: 0.68rem; color: var(--note);
+    font-style: italic; margin-top: 0.6rem;
+  }
+  #stamp-next b { color: var(--ink); font-style: normal; }
+
+  /* ---- the finding: the operator's own draft section, shipped at last ---- */
+  .finding { border: 1px solid var(--warn); padding: 0.9rem; }
+  .finding .hd {
+    font-size: 0.6rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--warn); text-align: center;
+  }
+  .finding .headline {
+    font-family: var(--slab); font-size: 1.45rem; line-height: 1.15;
+    text-align: center; color: var(--ink); margin: 0.55rem 0 0.6rem;
+    text-wrap: balance;
+  }
+  .bars { display: flex; flex-direction: column; gap: 0.45rem; margin: 0.8rem 0 0.7rem; }
+  .bar { display: flex; align-items: center; gap: 0.5rem; }
+  .bar .bk {
+    font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold-dim); width: 6.2rem; flex: none;
+  }
+  .bar .track { flex: 1; height: 0.55rem; border: 1px solid var(--rule); position: relative; }
+  .bar .fill { position: absolute; inset: 0 auto 0 0; }
+  .bar .bv {
+    font: 0.72rem var(--mono); font-variant-numeric: tabular-nums;
+    width: 3.4rem; text-align: right; flex: none;
+  }
+  .finding .foot { font-size: 0.66rem; color: var(--note); font-style: italic; line-height: 1.6; }
+
+  /* ---- table twins: every chart readable as rows ---- */
+  details.twin { margin-top: 0.45rem; }
+  details.twin summary {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold-dim); cursor: pointer; list-style: none; text-align: center;
+  }
+  details.twin summary::-webkit-details-marker { display: none; }
+  details.twin summary::before { content: "▸ "; }
+  details.twin[open] summary::before { content: "▾ "; }
 
   /* ---- scorecard + ledger rows share the end-credits shape ---- */
   .crow { display: flex; align-items: baseline; padding: 0.28rem 0; }
@@ -242,6 +390,10 @@
     color: var(--gold-dim);
     text-transform: uppercase;
   }
+  #daily {
+    text-align: center; font-size: 0.72rem; font-style: italic;
+    color: var(--gold-dim); margin-top: 0.5rem;
+  }
   #line {
     text-align: center;
     font-size: 0.85rem;
@@ -264,9 +416,34 @@
   <div id="sub"></div>
   <p id="reasons"></p>
 
+  <section id="intercept">
+    <h2>Intercept schedule</h2>
+    <p id="i-next"></p>
+    <div class="rail-wrap" id="rail"></div>
+    <details class="twin"><summary>read as table</summary><div id="rail-table"></div></details>
+  </section>
+
   <section id="case">
     <h2>The case</h2>
     <div id="case-body"></div>
+  </section>
+
+  <section id="pulse">
+    <h2>Surveillance · last 24h</h2>
+    <div id="pulse-body"></div>
+    <details class="twin"><summary>read as table</summary><div id="pulse-table"></div></details>
+  </section>
+
+  <section id="locker">
+    <h2>Evidence locker</h2>
+    <div id="locker-body"></div>
+    <details class="twin"><summary>read as table</summary><div id="locker-table"></div></details>
+  </section>
+
+  <section id="stamps-sec">
+    <h2>Commendations</h2>
+    <div id="stamps"></div>
+    <p id="stamp-next"></p>
   </section>
 
   <section id="scorecard">
@@ -284,17 +461,51 @@
     </div>
   </section>
 
+  <section id="probe">
+    <h2>Probe age</h2>
+    <div id="probe-body"></div>
+  </section>
+
+  <section id="docket">
+    <h2>On the docket</h2>
+    <div id="docket-body"></div>
+  </section>
+
   <section id="credits">
-    <h2>The ledger</h2>
+    <h2>Expenses</h2>
     <div class="crow"><span class="k">Observations</span><span class="dots"></span><span class="v" id="t-evals">–</span></div>
     <div class="crow"><span class="k">Settled</span><span class="dots"></span><span class="v" id="t-settle">–</span></div>
     <div class="crow"><span class="k">Cycles today</span><span class="dots"></span><span class="v" id="t-cycles">–</span></div>
     <div class="crow"><span class="k">Gaps · 24h</span><span class="dots"></span><span class="v" id="t-gaps">–</span></div>
     <div class="crow"><span class="k">Last cycle</span><span class="dots"></span><span class="v" id="t-cycle">–</span></div>
     <div class="crow"><span class="k">Heartbeat</span><span class="dots"></span><span class="v" id="t-heart">–</span></div>
-    <div class="crow"><span class="k">Credits · run</span><span class="dots"></span><span class="v" id="t-run">–</span></div>
-    <div class="crow"><span class="k">Credits · month</span><span class="dots"></span><span class="v" id="t-month">–</span></div>
+    <div id="m-run"></div>
+    <div id="m-month"></div>
     <p id="streak"></p>
+  </section>
+
+  <section id="finding">
+    <h2>The finding</h2>
+    <div class="finding">
+      <div class="hd">finding of record · sports · taker leg</div>
+      <div class="headline">The fee is bigger than the edge.</div>
+      <div class="bars">
+        <div class="bar"><span class="bk">threshold τ</span>
+          <span class="track"><span class="fill" style="width:100%;background:var(--gold-dim)"></span></span>
+          <span class="bv">2.00¢</span></div>
+        <div class="bar"><span class="bk">taker fee</span>
+          <span class="track"><span class="fill" style="width:85.9%;background:var(--crit)"></span></span>
+          <span class="bv">1.72¢</span></div>
+        <div class="bar"><span class="bk">best edge ever</span>
+          <span class="track"><span class="fill" style="width:60.5%;background:var(--warn)"></span></span>
+          <span class="bv">1.21¢</span></div>
+      </div>
+      <p class="foot">Every observation starts ~0.57¢ behind the book and pays
+      1.72¢ to cross it. The best net edge ever seen never reached the 2¢ bar —
+      zero qualifying signals in n = 87,470. The taker thesis died in eight days;
+      the maker leg and the weather family are the case that remains.
+      <br>— amendment of record, 2026-07-26</p>
+    </div>
   </section>
 
   <section id="notes">
@@ -304,6 +515,7 @@
 
   <p id="line"></p>
   <div id="checked"></div>
+  <p id="daily"></p>
 </div>
 
 <script>
@@ -314,7 +526,8 @@
   // Sections that only exist once the publisher grows the fields that feed
   // them. Everything here is presence-gated: schema 1 (no new keys) must
   // render as a complete, intentional page with these simply absent.
-  var EXTRA = ["case", "scorecard", "latest"];
+  var EXTRA = ["case", "scorecard", "latest", "intercept", "pulse", "locker",
+               "probe", "stamps-sec"];
   var MAX_TICKS = 60;   // longer phases compress; the strip never shreds
   var PHASE = {
     not_started: "clock not started",
@@ -324,6 +537,9 @@
   };
   var CHIP = { sealed: "sealed", running: "running", diagnostic: "diag" };
   var FAMILY_ORDER = ["sports", "weather", "econ"];
+  var SERIES = { sports: "var(--series-sports)", weather: "var(--series-weather)" };
+  var CASE_OPENED_UTC = Date.UTC(2026, 6, 25);   // M4 opened 2026-07-25
+  var SVGNS = "http://www.w3.org/2000/svg";
   var el = function (id) { return document.getElementById(id); };
 
   function token() {
@@ -373,16 +589,36 @@
   }
   function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
   function num(n) { return n == null ? "–" : n.toLocaleString("en-US"); }
+  function compact(n) {
+    if (!isNum(n)) return "–";
+    if (n >= 100000) return (n / 1000).toFixed(0) + "K";
+    if (n >= 10000) return (n / 1000).toFixed(1) + "K";
+    return num(Math.round(n));
+  }
   function titleCase(s) {
     return s.replace(/[_-]+/g, " ").replace(/\b\w/g, function (c) {
       return c.toUpperCase();
     });
+  }
+  function localTime(dt) {
+    return dt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+      .toLowerCase().replace(" ", "");
+  }
+  function localDay(dt) {
+    return dt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+      .toLowerCase();
   }
 
   // -- tiny DOM builders (textContent only — the payload is never markup) --
   function tag(name, cls, text) {
     var n = document.createElement(name);
     if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function svg(name, attrs, text) {
+    var n = document.createElementNS(SVGNS, name);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
     if (text != null) n.textContent = text;
     return n;
   }
@@ -417,6 +653,8 @@
   function showData(show) {
     el("credits").classList.toggle("show", show);
     el("notes").classList.toggle("show", show);
+    el("finding").classList.toggle("show", show);
+    el("docket").classList.toggle("show", show && docketRows.length > 0);
     if (!show) {
       EXTRA.forEach(function (id) { el(id).classList.remove("show"); });
     }
@@ -424,6 +662,15 @@
   function line(html) {
     el("line").innerHTML = html || "";   // app-authored strings only
     el("line").classList.toggle("show", !!html);
+  }
+
+  // -- crow-row helper (used by the ledger AND the chart table twins) ------
+  function crowRow(key, value) {
+    var row = tag("div", "crow");
+    row.appendChild(tag("span", "k", key));
+    row.appendChild(tag("span", "dots"));
+    row.appendChild(tag("span", "v", value));
+    return row;
   }
 
   // -- the case ---------------------------------------------------------
@@ -507,14 +754,17 @@
     if (isNum(f.v1_count)) {
       var big = tag("div", "bigcount");
       big.appendChild(tag("span", "n", num(Math.round(f.v1_count))));
-      if (isNum(f.v1_target)) {
-        big.appendChild(tag("span", "of",
-          "/ " + num(Math.round(f.v1_target)) + " needed"));
-      }
+      var ofBits = [];
+      if (isNum(f.v1_target)) ofBits.push("/ " + num(Math.round(f.v1_target)) + " needed");
+      // The denominator behind the count: rows are re-observations; the
+      // event count is the evidence (review 2026-07-27, Ruling D's trap).
+      if (isNum(f.v1_clusters)) ofBits.push("· " + num(Math.round(f.v1_clusters)) + " ev");
+      if (ofBits.length) big.appendChild(tag("span", "of", ofBits.join(" ")));
       big.appendChild(tag("span", "lbl", "V1 evidence"));
       fam.appendChild(big);
       fam.appendChild(tag("p", "caption",
-        "Out-of-sample observations above threshold." +
+        "Out-of-sample observations above threshold" +
+        (isNum(f.v1_clusters) ? ", and the independent events behind them." : ".") +
         (phase === "in_sample" ? " The window hasn't opened yet." : "")));
     }
     return fam;
@@ -536,6 +786,396 @@
       if (block) body.appendChild(block);
     });
     return body.childNodes.length > 0;
+  }
+
+  // -- intercept schedule: the sniper's clock -----------------------------
+  var railTimer = null;
+  function renderRail(sched) {
+    var host = el("rail"), next = el("i-next"), table = el("rail-table");
+    host.textContent = ""; next.textContent = ""; table.textContent = "";
+    if (railTimer) { clearInterval(railTimer); railTimer = null; }
+    if (!sched || typeof sched !== "object") return false;
+    var hours = Array.isArray(sched.init_hours)
+      ? sched.init_hours.filter(isNum).map(Math.round) : null;
+    var open = isNum(sched.fetchable_min) ? sched.fetchable_min : null;
+    var close = isNum(sched.envelope_min) ? sched.envelope_min : null;
+    if (!hours || !hours.length || open == null || close == null || close <= open) {
+      return false;
+    }
+
+    var W = 384, H = 36, railY = 15;
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H,
+      role: "img", "aria-label": "NBM percentile publication windows over 24 hours, device-local time" });
+    s.appendChild(svg("line", { "class": "rail-track", x1: 0, y1: railY, x2: W, y2: railY }));
+    var tzOff = new Date().getTimezoneOffset();   // minutes BEHIND UTC
+    function localMin(utcMin) { return ((utcMin - tzOff) % 1440 + 1440) % 1440; }
+    hours.forEach(function (h) {
+      var startLocal = localMin(h * 60 + open);
+      var width = (close - open) / 1440 * W;
+      var x = startLocal / 1440 * W;
+      // A slot crossing local midnight splits into two rects at the edge.
+      if (x + width <= W) {
+        s.appendChild(svg("rect", { "class": "rail-slot", x: x.toFixed(1),
+          y: railY - 4, width: width.toFixed(1), height: 8, rx: 2 }));
+      } else {
+        var first = W - x;
+        s.appendChild(svg("rect", { "class": "rail-slot", x: x.toFixed(1),
+          y: railY - 4, width: first.toFixed(1), height: 8, rx: 2 }));
+        s.appendChild(svg("rect", { "class": "rail-slot", x: 0,
+          y: railY - 4, width: (width - first).toFixed(1), height: 8, rx: 2 }));
+      }
+    });
+    // hour ticks at local 12a / 6a / 12p / 6p
+    [0, 6, 12, 18].forEach(function (h) {
+      var x = h / 24 * W;
+      var label = h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p";
+      s.appendChild(svg("text", { "class": "rail-tick", x: x + 2, y: H - 3 }, label));
+    });
+    var nowDot = svg("circle", { "class": "rail-now rail-now-dot", r: 3.5, cy: railY });
+    var nowRing = svg("circle", { r: 5.5, cy: railY, fill: "none",
+      stroke: "#241608", "stroke-width": 2 });   // surface ring
+    s.appendChild(nowRing);
+    s.appendChild(nowDot);
+    host.appendChild(s);
+
+    var rows = hours.slice().sort(function (a, b) { return a - b; });
+    function tick() {
+      var now = new Date();
+      var nowLocal = (now.getHours() * 60 + now.getMinutes()) / 1440 * W;
+      nowDot.setAttribute("cx", nowLocal.toFixed(1));
+      nowRing.setAttribute("cx", nowLocal.toFixed(1));
+      // next fetchable instant across the schedule
+      var best = null;
+      rows.forEach(function (h) {
+        for (var d = 0; d < 2; d++) {
+          var t = new Date(now.getTime());
+          t.setUTCHours(h, open, 0, 0);
+          t.setUTCDate(t.getUTCDate() + d);
+          if (t > now && (!best || t < best)) best = t;
+        }
+      });
+      if (best) {
+        var mins = Math.round((best - now) / 60000);
+        var inWindow = false;
+        rows.forEach(function (h) {
+          var startT = new Date(now.getTime()); startT.setUTCHours(h, open, 0, 0);
+          var endT = new Date(now.getTime()); endT.setUTCHours(h, close, 0, 0);
+          if (now >= startT && now <= endT) inWindow = true;
+        });
+        say(next, inWindow
+          ? ["window OPEN — the percentiles are on the wire now"]
+          : ["next intercept ", { b: localTime(best) },
+             " · in ", { b: mins >= 60
+               ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m" }]);
+      }
+    }
+    tick();
+    railTimer = setInterval(tick, 30000);
+
+    rows.forEach(function (h) {
+      var t = new Date(); t.setUTCHours(h, open, 0, 0);
+      var e = new Date(); e.setUTCHours(h, close, 0, 0);
+      table.appendChild(crowRow(String(h).length < 2 ? "0" + h + "Z init" : h + "Z init",
+        localTime(t) + " – " + localTime(e)));
+    });
+    return true;
+  }
+
+  // -- surveillance: the 24h pulse ---------------------------------------
+  function roundTopBar(x, w, top, base, fill) {
+    var r = Math.min(4, w / 2, Math.max(0, base - top));
+    var d = "M" + x.toFixed(1) + "," + base +
+      " L" + x.toFixed(1) + "," + (top + r).toFixed(1) +
+      " Q" + x.toFixed(1) + "," + top.toFixed(1) + " " + (x + r).toFixed(1) + "," + top.toFixed(1) +
+      " L" + (x + w - r).toFixed(1) + "," + top.toFixed(1) +
+      " Q" + (x + w).toFixed(1) + "," + top.toFixed(1) + " " + (x + w).toFixed(1) + "," + (top + r).toFixed(1) +
+      " L" + (x + w).toFixed(1) + "," + base + " Z";
+    return svg("path", { d: d, fill: fill });
+  }
+
+  function pulseLane(name, hoursUtc, color) {
+    var lane = tag("div", "lane");
+    var head = tag("div", "lane-head");
+    var sw = tag("span", "swatch"); sw.style.background = color;
+    head.appendChild(sw);
+    head.appendChild(tag("span", null, name));
+    var total = 0, max = 0, maxLocal = 0;
+    // rotate UTC-indexed buckets onto the local 24h wheel
+    var tzOffH = Math.round(new Date().getTimezoneOffset() / 60);
+    var local = [];
+    for (var i = 0; i < 24; i++) local[i] = 0;
+    for (var u = 0; u < 24; u++) {
+      var n = isNum(hoursUtc[u]) ? Math.max(0, Math.round(hoursUtc[u])) : 0;
+      var li = ((u - tzOffH) % 24 + 24) % 24;
+      local[li] += n;
+      total += n;
+    }
+    for (var j = 0; j < 24; j++) if (local[j] > max) { max = local[j]; maxLocal = j; }
+    var tot = tag("span", "tot", compact(total));
+    tot.appendChild(tag("small", null, "24h"));
+    head.appendChild(tot);
+    lane.appendChild(head);
+
+    var W = 384, H = 58, base = 44, plotTop = 12;
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, role: "img",
+      "aria-label": name + " evaluations per hour over the last 24 hours, " + total + " total" });
+    var slot = W / 24, gap = 2, bw = slot - gap;
+    for (var k = 0; k < 24; k++) {
+      if (!local[k]) continue;
+      var hgt = max ? (local[k] / max) * (base - plotTop) : 0;
+      s.appendChild(roundTopBar(k * slot + gap / 2, bw, base - hgt, base, color));
+    }
+    s.appendChild(svg("line", { "class": "base", x1: 0, y1: base + 0.5, x2: W, y2: base + 0.5 }));
+    if (max > 0) {   // direct-label the peak only — never every bar
+      var px = maxLocal * slot + slot / 2;
+      var anchor = maxLocal < 3 ? "start" : maxLocal > 20 ? "end" : "middle";
+      s.appendChild(svg("text", { "class": "peak", x: px.toFixed(1), y: 9,
+        "text-anchor": anchor }, compact(max)));
+    }
+    [0, 6, 12, 18].forEach(function (h) {
+      var label = h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p";
+      s.appendChild(svg("text", { "class": "axis-tick", x: h / 24 * W + 2, y: H - 2 }, label));
+    });
+    lane.appendChild(s);
+    return { node: lane, total: total, local: local };
+  }
+
+  function renderPulse(hourly) {
+    var body = el("pulse-body"), table = el("pulse-table");
+    body.textContent = ""; table.textContent = "";
+    if (!hourly || typeof hourly !== "object") return false;
+    var made = 0;
+    FAMILY_ORDER.forEach(function (fam) {
+      var arr = hourly[fam];
+      if (!Array.isArray(arr) || arr.length !== 24) return;
+      var lane = pulseLane(fam, arr, SERIES[fam] || "var(--gold-dim)");
+      body.appendChild(lane.node);
+      made++;
+      var nz = [];
+      for (var i = 0; i < 24; i++) {
+        if (lane.local[i] > 0) nz.push([i, lane.local[i]]);
+      }
+      nz.slice(0, 8).forEach(function (pair) {
+        var h = pair[0];
+        var label = fam + " · " + (h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p");
+        table.appendChild(crowRow(label, num(pair[1])));
+      });
+    });
+    return made > 0;
+  }
+
+  // -- evidence locker: cumulative case file ------------------------------
+  function lockerLane(name, days, color) {
+    // days: [["YYYY-MM-DD", n], ...] ascending
+    var lane = tag("div", "lane");
+    var head = tag("div", "lane-head");
+    var sw = tag("span", "swatch"); sw.style.background = color;
+    head.appendChild(sw);
+    head.appendChild(tag("span", null, name));
+    var cum = [], run = 0, best = 0, bestDay = null;
+    days.forEach(function (pair) {
+      var n = Math.max(0, Math.round(pair[1]));
+      run += n;
+      cum.push(run);
+      if (n > best) { best = n; bestDay = pair[0]; }
+    });
+    var tot = tag("span", "tot", compact(run));
+    tot.appendChild(tag("small", null, plural(days.length, "day")));
+    head.appendChild(tot);
+    lane.appendChild(head);
+
+    var W = 384, H = 64, base = 56, plotTop = 8, right = 46;
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, role: "img",
+      "aria-label": name + " cumulative evaluations, " + run + " over " + days.length + " days" });
+    var span = Math.max(1, days.length - 1);
+    var xAt = function (i) { return days.length === 1 ? 4 : i / span * (W - right); };
+    var yAt = function (v) { return run ? base - (v / run) * (base - plotTop) : base; };
+    var lineD = "", areaD = "M" + xAt(0) + "," + base;
+    cum.forEach(function (v, i) {
+      var pt = xAt(i).toFixed(1) + "," + yAt(v).toFixed(1);
+      lineD += (i ? " L" : "M") + pt;
+      areaD += " L" + pt;
+    });
+    areaD += " L" + xAt(days.length - 1).toFixed(1) + "," + base + " Z";
+    var area = svg("path", { d: areaD, fill: color, "fill-opacity": "0.1" });
+    var stroke = svg("path", { d: lineD, fill: "none", stroke: color,
+      "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" });
+    s.appendChild(area);
+    s.appendChild(svg("line", { "class": "base", x1: 0, y1: base + 0.5, x2: W, y2: base + 0.5 }));
+    s.appendChild(stroke);
+    var ex = xAt(days.length - 1), ey = yAt(run);
+    s.appendChild(svg("circle", { cx: ex.toFixed(1), cy: ey.toFixed(1), r: 4.5,
+      fill: color, stroke: "#241608", "stroke-width": 2 }));
+    s.appendChild(svg("text", { "class": "end-label", x: (ex + 8).toFixed(1),
+      y: (Math.max(ey, plotTop + 8) + 3).toFixed(1) }, compact(run)));
+    lane.appendChild(s);
+
+    // record-day callout: today beat every prior day — say so
+    var lastN = days.length ? Math.max(0, Math.round(days[days.length - 1][1])) : 0;
+    if (days.length > 1 && lastN >= best && lastN > 0 && bestDay === days[days.length - 1][0]) {
+      lane.appendChild(tag("p", "record", "★ record day — " + num(lastN) + " and counting"));
+    }
+    return { node: lane, total: run, best: best, bestDay: bestDay };
+  }
+
+  function renderLocker(daily) {
+    var body = el("locker-body"), table = el("locker-table");
+    body.textContent = ""; table.textContent = "";
+    if (!daily || typeof daily !== "object") return false;
+    var made = 0;
+    FAMILY_ORDER.forEach(function (fam) {
+      var arr = daily[fam];
+      if (!Array.isArray(arr) || !arr.length) return;
+      var clean = arr.filter(function (p) {
+        return Array.isArray(p) && str(p[0], 10) && isNum(p[1]);
+      });
+      if (!clean.length) return;
+      var lane = lockerLane(fam, clean, SERIES[fam] || "var(--gold-dim)");
+      body.appendChild(lane.node);
+      made++;
+      clean.slice(-5).forEach(function (pair) {
+        table.appendChild(crowRow(fam + " · " + pair[0].slice(5), num(Math.round(pair[1]))));
+      });
+      if (lane.bestDay) {
+        table.appendChild(crowRow(fam + " · best day", num(lane.best) + " (" + lane.bestDay.slice(5) + ")"));
+      }
+    });
+    return made > 0;
+  }
+
+  // -- commendations: the case-file stamps --------------------------------
+  function stampDefs(d) {
+    var evals = isNum(d.evaluations_total) ? d.evaluations_total : 0;
+    var settled = isNum(d.settlements_total) ? d.settlements_total : 0;
+    var streak = isNum(d.streak_days) ? Math.floor(d.streak_days) : 0;
+    var ages = d.last_evaluation_age_s_by_family;
+    var weatherOn = !!(ages && typeof ages === "object" && isNum(ages.weather));
+    var sportsCase = d.case && d.case.sports ? d.case.sports : null;
+    var oosOpen = !!(sportsCase && str(sportsCase.phase, 24) === "out_of_sample");
+    return [
+      { big: "I", cap: "case opened", done: evals > 0 },
+      { big: "100K", cap: "observations", done: evals >= 100000,
+        left: evals < 100000 ? (100000 - evals).toLocaleString("en-US") + " observations to go" : null },
+      { big: "250K", cap: "observations", done: evals >= 250000,
+        left: evals >= 100000 && evals < 250000 ? (250000 - evals).toLocaleString("en-US") + " observations to go" : null },
+      { big: "WX", cap: "weather on the board", done: weatherOn,
+        left: weatherOn ? null : "first weather evaluation" },
+      { big: "7", cap: "clean week", done: streak >= 7,
+        left: streak > 0 && streak < 7 ? plural(7 - streak, "clean day") + " to go" : null },
+      { big: "30", cap: "clean month", done: streak >= 30,
+        left: streak >= 7 && streak < 30 ? plural(30 - streak, "clean day") + " to go" : null },
+      { big: "OOS", cap: "evidence counts", done: oosOpen,
+        left: oosOpen ? null : "opens aug 14" },
+      { big: "50K", cap: "settled", done: settled >= 50000,
+        left: settled > 0 && settled < 50000 ? (50000 - settled).toLocaleString("en-US") + " settlements to go" : null }
+    ];
+  }
+
+  function renderStamps(d) {
+    var host = el("stamps"), nextLine = el("stamp-next");
+    host.textContent = ""; nextLine.textContent = "";
+    var defs = stampDefs(d);
+    var nextUp = null;
+    defs.forEach(function (def) {
+      var st = tag("div", "stamp" + (def.done ? " earned" : ""));
+      st.appendChild(tag("div", "big", def.big));
+      st.appendChild(tag("div", "cap", def.cap));
+      host.appendChild(st);
+      if (!def.done && !nextUp && def.left) nextUp = def;
+    });
+    if (nextUp) {
+      say(nextLine, ["next commendation: ", { b: nextUp.left }]);
+    }
+    return true;
+  }
+
+  // -- probe age: freshness vs the dead-man -------------------------------
+  var DEADMAN_H = { sports: 6, weather: 8 };   // publisher thresholds, hours
+  function meterBlock(label, frac, valueText, stateWord, stateCls) {
+    var m = tag("div", "meter");
+    var row = tag("div", "mrow");
+    row.appendChild(tag("span", null, label));
+    var v = tag("span", "mv", valueText);
+    row.appendChild(v);
+    m.appendChild(row);
+    var track = tag("div", "track");
+    var fill = tag("div", "fill" + (stateCls ? " " + stateCls : ""));
+    fill.style.width = Math.min(100, Math.max(0, frac * 100)).toFixed(1) + "%";
+    track.appendChild(fill);
+    m.appendChild(track);
+    if (stateWord) m.appendChild(tag("div", "state" + (stateCls ? " " + stateCls : ""), stateWord));
+    return m;
+  }
+
+  function renderProbe(ages) {
+    var body = el("probe-body");
+    body.textContent = "";
+    if (!ages || typeof ages !== "object") return false;
+    var made = 0;
+    FAMILY_ORDER.forEach(function (fam) {
+      if (!(fam in ages)) return;
+      var v = ages[fam];
+      var limitH = DEADMAN_H[fam];
+      if (!isNum(v) || v < 0 || !limitH) return;
+      var frac = v / (limitH * 3600);
+      var cls = frac >= 1 ? "crit" : frac >= 0.6 ? "warn" : "";
+      var word = frac >= 1 ? "✕ past the dead-man — page goes red"
+        : frac >= 0.6 ? "△ quiet longer than usual" : null;
+      body.appendChild(meterBlock(fam + " probe", frac, age(v), word, cls));
+      made++;
+    });
+    return made > 0;
+  }
+
+  // -- the docket ----------------------------------------------------------
+  var docketRows = [];
+  function loadDocket() {
+    fetch("milestones.json?ts=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rows) {
+        docketRows = Array.isArray(rows) ? rows : [];
+        renderDocket();
+      })
+      .catch(function () { docketRows = []; });
+  }
+  function renderDocket() {
+    var body = el("docket-body");
+    body.textContent = "";
+    var now = Date.now();
+    var upcoming = docketRows.map(function (r) {
+      if (!r || typeof r !== "object") return null;
+      var label = str(r.label, 80);
+      var when = str(r.when, 32);
+      if (!label || !when) return null;
+      var hasTime = when.indexOf("T") > 0;
+      var dt = hasTime ? new Date(when) : parseDate(when);
+      if (!dt || isNaN(dt.getTime())) return null;
+      return { dt: dt, hasTime: hasTime, label: label };
+    }).filter(Boolean).filter(function (r) {
+      // keep today's items until local midnight; drop older
+      return r.dt.getTime() > now - 86400000;
+    }).sort(function (a, b) { return a.dt - b.dt; }).slice(0, 8);
+
+    var marked = false;
+    upcoming.forEach(function (r) {
+      var row = tag("div", "docket-row");
+      var whenText = r.hasTime
+        ? localDay(r.dt) + " · " + localTime(r.dt)
+        : dateWords(r.dt);
+      row.appendChild(tag("span", "when", whenText));
+      row.appendChild(tag("span", "dots"));
+      var what = tag("span", "what", r.label);
+      row.appendChild(what);
+      if (!marked && r.dt.getTime() > now) {
+        row.className = "docket-row next";
+        var chip = tag("span", "st running", "next");
+        what.appendChild(chip);
+        marked = true;
+      }
+      body.appendChild(row);
+    });
+    el("docket").classList.toggle("show",
+      upcoming.length > 0 && el("credits").classList.contains("show"));
   }
 
   // -- the scorecard ----------------------------------------------------
@@ -628,6 +1268,28 @@
     return !!tick || nums.childNodes.length > 0;
   }
 
+  // -- the daily line: same all day, new tomorrow --------------------------
+  var DAILY = [
+    "just one more thing…",
+    "my wife says I never stop checking the numbers. she's right.",
+    "oh — and the weather. I always check the weather.",
+    "it's the little inconsistencies that solve the case.",
+    "the fee did it. we can prove the fee did it.",
+    "patience. the evidence accumulates either way.",
+    "I know it looks like nothing's happening. that's the job.",
+    "the market talks in its sleep. we write it all down.",
+    "no hunches. we count.",
+    "the case isn't cold. it's marinating."
+  ];
+  function renderDaily() {
+    var dayIdx = Math.floor(Date.now() / 86400000);
+    el("daily").textContent = "“" + DAILY[dayIdx % DAILY.length] + "”";
+  }
+  function episode() {
+    var ep = Math.floor((Date.now() - CASE_OPENED_UTC) / 86400000) + 1;
+    return ep >= 1 && ep < 1000 ? ep : null;
+  }
+
   // -- the whole page ----------------------------------------------------
   function render(d) {
     // `schema` is deliberately not branched on: the page renders whatever
@@ -645,7 +1307,9 @@
     var hhmm = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.exec(stamp);
     // The clock beside it is stamped Z, so the date is UTC too: without this
     // a 02:49Z publish read "logged 02:49Z · july 25" on a UTC-7 phone.
-    var when = (hhmm ? "logged " + hhmm[1] + "Z · " : "logged ") +
+    var ep = episode();
+    var when = (ep ? "ep. " + ep + " · " : "") +
+      (hhmm ? "logged " + hhmm[1] + "Z · " : "logged ") +
       gen.toLocaleDateString("en-US", {
         month: "long", day: "numeric", timeZone: "UTC"
       }).toLowerCase();
@@ -668,13 +1332,19 @@
     el("case").classList.toggle("show", renderCase(d.case));
     el("scorecard").classList.toggle("show", renderScorecard(d.scorecard));
     el("latest").classList.toggle("show", renderLatest(d.latest_observation));
+    el("intercept").classList.toggle("show", renderRail(d.nbp_schedule));
+    el("pulse").classList.toggle("show", renderPulse(d.hourly_evaluations_24h));
+    el("locker").classList.toggle("show", renderLocker(d.daily_evaluations));
+    el("probe").classList.toggle("show",
+      renderProbe(d.last_evaluation_age_s_by_family));
+    el("stamps-sec").classList.toggle("show", renderStamps(d));
+    renderDocket();
 
     el("t-cycle").textContent = age(d.last_cycle_age_s);
     el("t-heart").textContent = age(d.heartbeat_age_s);
     el("t-cycles").textContent = num(d.cycles_today);
     el("t-gaps").textContent = num(d.gaps_24h);
     el("t-settle").textContent = num(d.settlements_total);
-    el("t-run").textContent = num(d.run_spent) + (d.credit_cap ? " / " + num(d.credit_cap) : "");
 
     var evals = el("t-evals");
     evals.textContent = num(d.evaluations_today) + " / " + num(d.evaluations_total);
@@ -683,10 +1353,26 @@
         num(Math.round(d.evaluations_in_window)) + " in-window"));
     }
 
-    var month = el("t-month");
-    month.textContent = num(d.monthly_used) + " used";
-    if (d.monthly_remaining != null) {
-      month.appendChild(tag("small", null, num(d.monthly_remaining) + " remaining"));
+    // credits as meters: fill carries state; the track is a lighter step of
+    // the same ramp. Escalation mirrors the publisher's own yellows.
+    var runHost = el("m-run"); runHost.textContent = "";
+    if (isNum(d.run_spent) && isNum(d.credit_cap) && d.credit_cap > 0) {
+      var rf = d.run_spent / d.credit_cap;
+      runHost.appendChild(meterBlock("credits · run", rf,
+        num(d.run_spent) + " / " + num(d.credit_cap),
+        rf >= 0.8 ? "△ over 80% of the run cap" : null,
+        rf >= 0.8 ? "warn" : ""));
+    }
+    var monHost = el("m-month"); monHost.textContent = "";
+    if (isNum(d.monthly_used) && isNum(d.monthly_remaining)) {
+      var totalCred = d.monthly_used + d.monthly_remaining;
+      if (totalCred > 0) {
+        var mf = d.monthly_used / totalCred;
+        monHost.appendChild(meterBlock("credits · month", mf,
+          num(d.monthly_used) + " / " + num(totalCred),
+          mf >= 0.7 ? "△ over 70% of the monthly budget" : null,
+          mf >= 0.7 ? "warn" : ""));
+      }
     }
 
     var streak = el("streak");
@@ -752,8 +1438,11 @@
     });
   }
 
+  renderDaily();
+  loadDocket();
   refresh();
   setInterval(refresh, 5 * 60 * 1000);
+  setInterval(renderDaily, 60 * 60 * 1000);
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) refresh();
   });
