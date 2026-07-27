@@ -111,20 +111,39 @@
     border-top: 1px solid var(--rule); padding-top: 0.9rem;
   }
 
-  /* ---- intercept schedule: the sniper's clock (the signature) ---- */
+  /* ---- intercept schedule: the radar clock (operator-selected chassis:
+     Signals Van + Darkroom chemistry, art direction 2026-07-27) ---- */
+  #scope { display: block; margin: 0 auto; max-width: 100%; height: auto; }
   #i-next {
-    text-align: center; font-size: 0.8rem; color: var(--note);
-    font-style: italic; margin-bottom: 0.55rem;
+    text-align: center; font: 0.72rem var(--mono); color: var(--gold);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.5rem;
+    text-shadow: 0 0 12px rgba(216, 178, 92, 0.5);
   }
-  #i-next b { color: var(--ink); font-style: normal; font-weight: 400; }
-  .rail-wrap svg { display: block; width: 100%; height: auto; }
-  .rail-slot { fill: var(--gold-dim); }
-  .rail-track { stroke: var(--grid); stroke-width: 1; }
-  .rail-now { fill: var(--gold); }
-  .rail-tick { font: 8.5px var(--mono); fill: var(--gold-dim); letter-spacing: 0.08em; }
-  @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-  .rail-now-dot { animation: breathe 3s ease-in-out infinite; }
-  @media (prefers-reduced-motion: reduce) { .rail-now-dot { animation: none; } }
+  #i-next b { color: var(--ink); font-weight: 600; }
+
+  /* darkroom chemistry: charts DEVELOP on fresh data; cumulative prints
+     carry a slow silver glint. Both die under prefers-reduced-motion. */
+  .develop { animation: develop 2.2s cubic-bezier(0.2, 0.6, 0.2, 1) both; }
+  @keyframes develop {
+    0% { filter: blur(7px) brightness(0.3) contrast(0.6); opacity: 0.25; }
+    100% { filter: blur(0) brightness(1) contrast(1); opacity: 1; }
+  }
+  .silver { position: relative; overflow: hidden; }
+  .silver::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 42%, rgba(205, 211, 214, 0.13) 50%, transparent 58%);
+    background-size: 260% 100%; background-position: 130% 0;
+    animation: glint 9s ease-in-out infinite;
+  }
+  @keyframes glint {
+    0%, 55% { background-position: 130% 0; }
+    75%, 100% { background-position: -30% 0; }
+  }
+  .lane canvas { display: block; width: 100%; height: auto; margin-top: 0.3rem; }
+  @media (prefers-reduced-motion: reduce) {
+    .develop { animation: none; }
+    .silver::after { animation: none; background: none; }
+  }
 
   /* ---- the case: what we are waiting for ---- */
   .fam + .fam { margin-top: 1.2rem; }
@@ -418,8 +437,8 @@
 
   <section id="intercept">
     <h2>Intercept schedule</h2>
+    <canvas id="scope" width="640" height="640" style="width:min(320px,88vw)"></canvas>
     <p id="i-next"></p>
-    <div class="rail-wrap" id="rail"></div>
     <details class="twin"><summary>read as table</summary><div id="rail-table"></div></details>
   </section>
 
@@ -541,6 +560,7 @@
   var CASE_OPENED_UTC = Date.UTC(2026, 6, 25);   // M4 opened 2026-07-25
   var SVGNS = "http://www.w3.org/2000/svg";
   var el = function (id) { return document.getElementById(id); };
+  var lastStamp = null;   // develop-in fires only when generated_at moves
 
   function token() {
     var m = location.hash.match(/[#&]t=([A-Za-z0-9_]+)/);
@@ -788,12 +808,19 @@
     return body.childNodes.length > 0;
   }
 
-  // -- intercept schedule: the sniper's clock -----------------------------
-  var railTimer = null;
+  // -- intercept schedule: the radar clock --------------------------------
+  // Canvas, HiDPI 2x. The hand sits at the ACTUAL device-local time with an
+  // afterglow trail; the gold arcs are the payload's real publication
+  // windows. Reduced motion: static dial, hand parked at now, re-drawn once
+  // a minute. Renders ONLY from nbp_schedule -- never local constants.
+  var REDUCED = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var scopeState = { raf: null, timer: null };
   function renderRail(sched) {
-    var host = el("rail"), next = el("i-next"), table = el("rail-table");
-    host.textContent = ""; next.textContent = ""; table.textContent = "";
-    if (railTimer) { clearInterval(railTimer); railTimer = null; }
+    var cv = el("scope"), next = el("i-next"), table = el("rail-table");
+    next.textContent = ""; table.textContent = "";
+    if (scopeState.raf) { cancelAnimationFrame(scopeState.raf); scopeState.raf = null; }
+    if (scopeState.timer) { clearInterval(scopeState.timer); scopeState.timer = null; }
     if (!sched || typeof sched !== "object") return false;
     var hours = Array.isArray(sched.init_hours)
       ? sched.init_hours.filter(isNum).map(Math.round) : null;
@@ -802,153 +829,245 @@
     if (!hours || !hours.length || open == null || close == null || close <= open) {
       return false;
     }
-
-    var W = 384, H = 36, railY = 15;
-    var s = svg("svg", { viewBox: "0 0 " + W + " " + H,
-      role: "img", "aria-label": "NBM percentile publication windows over 24 hours, device-local time" });
-    s.appendChild(svg("line", { "class": "rail-track", x1: 0, y1: railY, x2: W, y2: railY }));
-    var tzOff = new Date().getTimezoneOffset();   // minutes BEHIND UTC
-    function localMin(utcMin) { return ((utcMin - tzOff) % 1440 + 1440) % 1440; }
-    hours.forEach(function (h) {
-      var startLocal = localMin(h * 60 + open);
-      var width = (close - open) / 1440 * W;
-      var x = startLocal / 1440 * W;
-      // A slot crossing local midnight splits into two rects at the edge.
-      if (x + width <= W) {
-        s.appendChild(svg("rect", { "class": "rail-slot", x: x.toFixed(1),
-          y: railY - 4, width: width.toFixed(1), height: 8, rx: 2 }));
-      } else {
-        var first = W - x;
-        s.appendChild(svg("rect", { "class": "rail-slot", x: x.toFixed(1),
-          y: railY - 4, width: first.toFixed(1), height: 8, rx: 2 }));
-        s.appendChild(svg("rect", { "class": "rail-slot", x: 0,
-          y: railY - 4, width: (width - first).toFixed(1), height: 8, rx: 2 }));
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    var C = 320, cx = C / 2, cy = C / 2, r = 132;
+    var tz = new Date().getTimezoneOffset();
+    function angleFor(localMin) { return localMin / 1440 * Math.PI * 2 - Math.PI / 2; }
+    function nowAngle() {
+      var n = new Date();
+      return angleFor(n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60);
+    }
+    // The static dial (graticule, ticks, glow arcs) costs real paint time —
+    // shadowBlur is a per-stroke Gaussian. Rendered ONCE offscreen; each
+    // frame is a blit + trail + hand. Without this the sweep starved the
+    // main thread on first build (screenshot injection timed out).
+    var dial = document.createElement("canvas");
+    dial.width = 640; dial.height = 640;
+    (function () {
+      var d = dial.getContext("2d");
+      d.setTransform(2, 0, 0, 2, 0, 0);
+      d.strokeStyle = "#2a2214"; d.lineWidth = 1;
+      var rings = [1, 0.72, 0.44], ri;
+      for (ri = 0; ri < rings.length; ri++) {
+        d.beginPath(); d.arc(cx, cy, r * rings[ri], 0, Math.PI * 2); d.stroke();
       }
-    });
-    // hour ticks at local 12a / 6a / 12p / 6p
-    [0, 6, 12, 18].forEach(function (h) {
-      var x = h / 24 * W;
-      var label = h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p";
-      s.appendChild(svg("text", { "class": "rail-tick", x: x + 2, y: H - 3 }, label));
-    });
-    var nowDot = svg("circle", { "class": "rail-now rail-now-dot", r: 3.5, cy: railY });
-    var nowRing = svg("circle", { r: 5.5, cy: railY, fill: "none",
-      stroke: "#241608", "stroke-width": 2 });   // surface ring
-    s.appendChild(nowRing);
-    s.appendChild(nowDot);
-    host.appendChild(s);
-
-    var rows = hours.slice().sort(function (a, b) { return a - b; });
-    function tick() {
-      var now = new Date();
-      var nowLocal = (now.getHours() * 60 + now.getMinutes()) / 1440 * W;
-      nowDot.setAttribute("cx", nowLocal.toFixed(1));
-      nowRing.setAttribute("cx", nowLocal.toFixed(1));
-      // next fetchable instant across the schedule
-      var best = null;
-      rows.forEach(function (h) {
-        for (var d = 0; d < 2; d++) {
-          var t = new Date(now.getTime());
-          t.setUTCHours(h, open, 0, 0);
-          t.setUTCDate(t.getUTCDate() + d);
-          if (t > now && (!best || t < best)) best = t;
+      var h, a, big, lb;
+      for (h = 0; h < 24; h++) {
+        a = angleFor(h * 60); big = h % 6 === 0;
+        d.beginPath();
+        d.moveTo(cx + Math.cos(a) * (r - (big ? 12 : 6)), cy + Math.sin(a) * (r - (big ? 12 : 6)));
+        d.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+        d.strokeStyle = big ? "#4a3418" : "#2a2214"; d.stroke();
+        if (big) {
+          d.fillStyle = "#7d6a4a"; d.font = "10px monospace"; d.textAlign = "center";
+          lb = h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p";
+          d.fillText(lb, cx + Math.cos(a) * (r + 13), cy + Math.sin(a) * (r + 13) + 3);
         }
-      });
-      if (best) {
+      }
+      var k, s0, s1;
+      for (k = 0; k < hours.length; k++) {
+        s0 = angleFor(((hours[k] * 60 + open - tz) % 1440 + 1440) % 1440);
+        s1 = s0 + (close - open) / 1440 * Math.PI * 2;
+        d.beginPath(); d.arc(cx, cy, r - 20, s0, s1);
+        d.strokeStyle = "#d8b25c"; d.lineWidth = 7; d.lineCap = "round";
+        d.shadowColor = "#d8b25c"; d.shadowBlur = 10; d.stroke();
+        d.shadowBlur = 0;
+      }
+    })();
+    function draw(sweepA, trail) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, 640, 640);
+      ctx.drawImage(dial, 0, 0);
+      ctx.setTransform(2, 0, 0, 2, 0, 0);
+      if (trail) {
+        var tstep, ta;
+        for (tstep = 26; tstep >= 1; tstep--) {
+          ta = sweepA - tstep * 0.012;
+          ctx.beginPath(); ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + Math.cos(ta) * (r - 26), cy + Math.sin(ta) * (r - 26));
+          ctx.strokeStyle = "rgba(216,178,92," + (0.05 * (1 - tstep / 27)).toFixed(3) + ")";
+          ctx.lineWidth = 3; ctx.stroke();
+        }
+      }
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sweepA) * (r - 24), cy + Math.sin(sweepA) * (r - 24));
+      ctx.strokeStyle = "#f2e3c2"; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, 3.4, 0, Math.PI * 2);
+      ctx.fillStyle = "#d8b25c"; ctx.fill();
+    }
+    function readout() {
+      var now = new Date(), best = null, k, d, tt;
+      for (k = 0; k < hours.length; k++) {
+        for (d = 0; d < 2; d++) {
+          tt = new Date(now.getTime());
+          tt.setUTCHours(hours[k], open, 0, 0); tt.setUTCDate(tt.getUTCDate() + d);
+          if (tt > now && (!best || tt < best)) best = tt;
+        }
+      }
+      var inWindow = false, st, en;
+      for (k = 0; k < hours.length; k++) {
+        st = new Date(now.getTime()); st.setUTCHours(hours[k], open, 0, 0);
+        en = new Date(now.getTime()); en.setUTCHours(hours[k], close, 0, 0);
+        if (now >= st && now <= en) inWindow = true;
+      }
+      if (inWindow) {
+        say(next, ["window open \u2014 percentiles on the wire"]);
+      } else if (best) {
         var mins = Math.round((best - now) / 60000);
-        var inWindow = false;
-        rows.forEach(function (h) {
-          var startT = new Date(now.getTime()); startT.setUTCHours(h, open, 0, 0);
-          var endT = new Date(now.getTime()); endT.setUTCHours(h, close, 0, 0);
-          if (now >= startT && now <= endT) inWindow = true;
-        });
-        say(next, inWindow
-          ? ["window OPEN — the percentiles are on the wire now"]
-          : ["next intercept ", { b: localTime(best) },
-             " · in ", { b: mins >= 60
-               ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m" }]);
+        say(next, ["next drop ", { b: localTime(best) }, " \u00b7 ",
+          { b: mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m" }]);
       }
     }
-    tick();
-    railTimer = setInterval(tick, 30000);
-
-    rows.forEach(function (h) {
-      var t = new Date(); t.setUTCHours(h, open, 0, 0);
-      var e = new Date(); e.setUTCHours(h, close, 0, 0);
-      table.appendChild(crowRow(String(h).length < 2 ? "0" + h + "Z init" : h + "Z init",
-        localTime(t) + " – " + localTime(e)));
-    });
+    if (REDUCED) {
+      draw(nowAngle(), false); readout();
+      scopeState.timer = setInterval(function () { draw(nowAngle(), false); readout(); }, 60000);
+    } else {
+      var a = nowAngle() - 0.6;
+      var flip = false;
+      var frame = function () {
+        flip = !flip;
+        if (flip) {   // ~30fps is plenty for a clock hand
+          var target = nowAngle();
+          if (a < target) a = Math.min(a + 0.008, target); else a = target;
+          draw(a, true);
+        }
+        scopeState.raf = requestAnimationFrame(frame);
+      };
+      frame();
+      readout();
+      scopeState.timer = setInterval(readout, 30000);
+    }
+    var rows = hours.slice().sort(function (x, y) { return x - y; }), k2, t0, t1;
+    for (k2 = 0; k2 < rows.length; k2++) {
+      t0 = new Date(); t0.setUTCHours(rows[k2], open, 0, 0);
+      t1 = new Date(); t1.setUTCHours(rows[k2], close, 0, 0);
+      table.appendChild(crowRow((rows[k2] < 10 ? "0" : "") + rows[k2] + "Z init",
+        localTime(t0) + " \u2013 " + localTime(t1)));
+    }
     return true;
   }
 
   // -- surveillance: the 24h pulse ---------------------------------------
-  function roundTopBar(x, w, top, base, fill) {
-    var r = Math.min(4, w / 2, Math.max(0, base - top));
-    var d = "M" + x.toFixed(1) + "," + base +
-      " L" + x.toFixed(1) + "," + (top + r).toFixed(1) +
-      " Q" + x.toFixed(1) + "," + top.toFixed(1) + " " + (x + r).toFixed(1) + "," + top.toFixed(1) +
-      " L" + (x + w - r).toFixed(1) + "," + top.toFixed(1) +
-      " Q" + (x + w).toFixed(1) + "," + top.toFixed(1) + " " + (x + w).toFixed(1) + "," + (top + r).toFixed(1) +
-      " L" + (x + w).toFixed(1) + "," + base + " Z";
-    return svg("path", { d: d, fill: fill });
+  // -- surveillance: phosphor traces (Signals Van chassis) ----------------
+  // Canvas per lane, amber/steel glow via shadowBlur; one shared scanning
+  // refresh column sweeps every lane when motion is allowed. Identity and
+  // totals live in HTML text tokens above each canvas -- text never wears
+  // the series color; the mark does.
+  var SERIES_HEX = { sports: "#b98432", weather: "#5b8fd0" };
+  var scanState = { raf: null, lanes: [] };
+  function renderLaneStatic(localVals, hex, peakLocal) {
+    // The glowing bars are painted ONCE to an offscreen canvas; the scan
+    // loop only blits it. shadowBlur per frame starved the main thread.
+    var off = document.createElement("canvas");
+    off.width = 768; off.height = 116;
+    var c = off.getContext("2d");
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    var W = 384, H = 58, base = 44, plotTop = 12;
+    var mx = 0, i;
+    for (i = 0; i < 24; i++) if (localVals[i] > mx) mx = localVals[i];
+    c.strokeStyle = "#33210f"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, base + 0.5); c.lineTo(W, base + 0.5); c.stroke();
+    var slot = W / 24, gap = 2, bw = slot - gap, hgt;
+    c.shadowColor = hex; c.shadowBlur = 7;
+    c.fillStyle = hex;
+    for (i = 0; i < 24; i++) {
+      if (!localVals[i] || !mx) continue;
+      hgt = localVals[i] / mx * (base - plotTop);
+      c.fillRect(i * slot + gap / 2, base - hgt, bw, hgt);
+    }
+    c.shadowBlur = 0;
+    if (mx > 0) {
+      c.fillStyle = "#a89578"; c.font = "9px monospace";
+      c.textAlign = peakLocal < 3 ? "left" : peakLocal > 20 ? "right" : "center";
+      c.fillText(compact(mx), peakLocal * slot + slot / 2, 9);
+    }
+    c.fillStyle = "#7d6a4a"; c.font = "8.5px monospace"; c.textAlign = "left";
+    var hlabels = [[0, "12a"], [6, "6a"], [12, "12p"], [18, "6p"]], hl;
+    for (hl = 0; hl < 4; hl++) {
+      c.fillText(hlabels[hl][1], hlabels[hl][0] / 24 * W + 2, H - 2);
+    }
+    return off;
   }
-
-  function pulseLane(name, hoursUtc, color) {
+  function blitLane(laneCtx, still, scanX) {
+    laneCtx.setTransform(1, 0, 0, 1, 0, 0);
+    laneCtx.clearRect(0, 0, 768, 116);
+    laneCtx.drawImage(still, 0, 0);
+    if (scanX != null) {
+      laneCtx.setTransform(2, 0, 0, 2, 0, 0);
+      laneCtx.fillStyle = "rgba(216,178,92,0.07)";
+      laneCtx.fillRect(scanX, 0, 14, 44);
+    }
+  }
+  function pulseLane(name, hoursUtc, hex) {
     var lane = tag("div", "lane");
     var head = tag("div", "lane-head");
-    var sw = tag("span", "swatch"); sw.style.background = color;
+    var sw = tag("span", "swatch"); sw.style.background = hex;
     head.appendChild(sw);
     head.appendChild(tag("span", null, name));
-    var total = 0, max = 0, maxLocal = 0;
-    // rotate UTC-indexed buckets onto the local 24h wheel
+    var total = 0, u, n, li;
     var tzOffH = Math.round(new Date().getTimezoneOffset() / 60);
-    var local = [];
-    for (var i = 0; i < 24; i++) local[i] = 0;
-    for (var u = 0; u < 24; u++) {
-      var n = isNum(hoursUtc[u]) ? Math.max(0, Math.round(hoursUtc[u])) : 0;
-      var li = ((u - tzOffH) % 24 + 24) % 24;
+    var local = [], j;
+    for (j = 0; j < 24; j++) local[j] = 0;
+    for (u = 0; u < 24; u++) {
+      n = isNum(hoursUtc[u]) ? Math.max(0, Math.round(hoursUtc[u])) : 0;
+      li = ((u - tzOffH) % 24 + 24) % 24;
       local[li] += n;
       total += n;
     }
-    for (var j = 0; j < 24; j++) if (local[j] > max) { max = local[j]; maxLocal = j; }
+    var mx = 0, peakLocal = 0;
+    for (j = 0; j < 24; j++) if (local[j] > mx) { mx = local[j]; peakLocal = j; }
     var tot = tag("span", "tot", compact(total));
     tot.appendChild(tag("small", null, "24h"));
     head.appendChild(tot);
     lane.appendChild(head);
-
-    var W = 384, H = 58, base = 44, plotTop = 12;
-    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, role: "img",
-      "aria-label": name + " evaluations per hour over the last 24 hours, " + total + " total" });
-    var slot = W / 24, gap = 2, bw = slot - gap;
-    for (var k = 0; k < 24; k++) {
-      if (!local[k]) continue;
-      var hgt = max ? (local[k] / max) * (base - plotTop) : 0;
-      s.appendChild(roundTopBar(k * slot + gap / 2, bw, base - hgt, base, color));
-    }
-    s.appendChild(svg("line", { "class": "base", x1: 0, y1: base + 0.5, x2: W, y2: base + 0.5 }));
-    if (max > 0) {   // direct-label the peak only — never every bar
-      var px = maxLocal * slot + slot / 2;
-      var anchor = maxLocal < 3 ? "start" : maxLocal > 20 ? "end" : "middle";
-      s.appendChild(svg("text", { "class": "peak", x: px.toFixed(1), y: 9,
-        "text-anchor": anchor }, compact(max)));
-    }
-    [0, 6, 12, 18].forEach(function (h) {
-      var label = h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p";
-      s.appendChild(svg("text", { "class": "axis-tick", x: h / 24 * W + 2, y: H - 2 }, label));
+    var cv = document.createElement("canvas");
+    cv.width = 768; cv.height = 116;
+    cv.setAttribute("role", "img");
+    cv.setAttribute("aria-label",
+      name + " evaluations per hour over the last 24 hours, " + total + " total");
+    var cctx = cv.getContext("2d");
+    lane.appendChild(cv);
+    scanState.lanes.push({
+      ctx: cctx, still: renderLaneStatic(local, hex, peakLocal)
     });
-    lane.appendChild(s);
     return { node: lane, total: total, local: local };
+  }
+  function startScan() {
+    if (scanState.raf) { cancelAnimationFrame(scanState.raf); scanState.raf = null; }
+    var lanes = scanState.lanes, i;
+    if (!lanes.length) return;
+    if (REDUCED) {
+      for (i = 0; i < lanes.length; i++) {
+        blitLane(lanes[i].ctx, lanes[i].still, null);
+      }
+      return;
+    }
+    var sx = 0, flip = false;
+    var frame = function () {
+      flip = !flip;
+      if (flip) {   // ~30fps
+        var k;
+        for (k = 0; k < lanes.length; k++) {
+          blitLane(lanes[k].ctx, lanes[k].still, sx);
+        }
+        sx = (sx + 1.2) % 384;
+      }
+      scanState.raf = requestAnimationFrame(frame);
+    };
+    frame();
   }
 
   function renderPulse(hourly) {
     var body = el("pulse-body"), table = el("pulse-table");
     body.textContent = ""; table.textContent = "";
-    if (!hourly || typeof hourly !== "object") return false;
+    scanState.lanes = [];
+    if (!hourly || typeof hourly !== "object") { startScan(); return false; }
     var made = 0;
     FAMILY_ORDER.forEach(function (fam) {
       var arr = hourly[fam];
       if (!Array.isArray(arr) || arr.length !== 24) return;
-      var lane = pulseLane(fam, arr, SERIES[fam] || "var(--gold-dim)");
+      var lane = pulseLane(fam, arr, SERIES_HEX[fam] || "#7d6a4a");
       body.appendChild(lane.node);
       made++;
       var nz = [];
@@ -957,10 +1076,11 @@
       }
       nz.slice(0, 8).forEach(function (pair) {
         var h = pair[0];
-        var label = fam + " · " + (h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p");
+        var label = fam + " \u00b7 " + (h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p");
         table.appendChild(crowRow(label, num(pair[1])));
       });
     });
+    startScan();
     return made > 0;
   }
 
@@ -1031,6 +1151,7 @@
       });
       if (!clean.length) return;
       var lane = lockerLane(fam, clean, SERIES[fam] || "var(--gold-dim)");
+      lane.node.className = "lane silver";   // the darkroom glint, prints only
       body.appendChild(lane.node);
       made++;
       clean.slice(-5).forEach(function (pair) {
@@ -1328,6 +1449,21 @@
     }
     line("");
     showData(true);
+
+    // Darkroom chemistry: when the payload is genuinely NEW, every data
+    // section develops -- blur to sharp, a print coming up in the bath.
+    // A re-render without fresh data (tab focus) stays still.
+    var fresh = stamp !== lastStamp;
+    lastStamp = stamp;
+    if (fresh) {
+      ["case", "pulse", "locker", "probe", "credits", "finding", "stamps-sec"]
+        .forEach(function (id) {
+          var node = el(id);
+          node.classList.remove("develop");
+          void node.offsetWidth;   // restart the animation
+          node.classList.add("develop");
+        });
+    }
 
     el("case").classList.toggle("show", renderCase(d.case));
     el("scorecard").classList.toggle("show", renderScorecard(d.scorecard));
