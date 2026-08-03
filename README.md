@@ -36,17 +36,20 @@ Renders the verdict card, the ledger and the field notes. Unchanged in meaning.
   "case": {
     "sports": {
       "phase": "in_sample",              // REQUIRED, else the family is skipped
-      "window_open": "2026-07-25",       // YYYY-MM-DD (UTC calendar day)
+      "window_open": "2026-08-03",       // YYYY-MM-DD (UTC calendar day)
       "window_close": "2026-09-27",
-      "out_of_sample_opens": "2026-08-14",
+      "out_of_sample_opens": "2026-08-20",
       "day": 2,                          // day number WITHIN the current phase
       "phase_days": 20,                  // length of the current phase, in days
       "v1_count": 0,                     // out-of-sample above-threshold evals
-      "v1_target": 200
+      "v1_target": 200,
+      "v1_clusters": 0                   // independent events behind v1_count
     },
     "weather": {
-      "phase": "not_started",
-      "note": "the 60-day window opens the day the calibration seed lands"
+      "phase": "in_sample",
+      "window_open": "2026-08-03",       // era-2 day 0; the 60-day window runs from here
+      "window_close": "2026-10-01",
+      "out_of_sample_opens": "2026-08-21"
     }
   },
 
@@ -78,16 +81,29 @@ Renders the verdict card, the ledger and the field notes. Unchanged in meaning.
 }
 ```
 
+### Charts and the intercept rail — additive keys, sections stay dark without them
+
+| Key | Shape | Renders |
+|---|---|---|
+| `hourly_evaluations_24h` | `{family: [24 ints]}`, UTC hours | SURVEILLANCE — per-family 24h intake lanes |
+| `daily_evaluations` | `{family: [["YYYY-MM-DD", n], …]}` (≤35 rows read) | EVIDENCE LOCKER — cumulative area per family |
+| `nbp_schedule` | `{init_hours: [1,7,13,19], fetchable_min: 66, envelope_min: 120}` | INTERCEPT SCHEDULE — the radar clock. Rendered ONLY from this key so the rail can never drift from the client's real schedule |
+| `case.<fam>.phase = "exempt"` | string | The dashed dormant block (econ) |
+
+The docket (`ON THE DOCKET`) is NOT payload: it reads `milestones.json` from this
+repo, same-origin, so it updates with a Pages push and no droplet deploy.
+
 ### Field rules
 
 | Field | Type | If absent or malformed |
 |---|---|---|
 | `case` | object keyed by family | The case section is hidden |
 | `case.<fam>.phase` | `not_started` \| `in_sample` \| `out_of_sample` \| `closed` | **Required.** Missing → that family is skipped. An unrecognised value renders the dashed dormant block with the value as its wording, never numbers |
-| `case.<fam>.window_open` / `window_close` / `out_of_sample_opens` | `YYYY-MM-DD` | The sentence that needs the date is dropped or falls back to a dateless wording. Rendered as `aug 14` |
+| `case.<fam>.window_open` / `window_close` / `out_of_sample_opens` | `YYYY-MM-DD` | The sentence that needs the date is dropped or falls back to a dateless wording. Rendered as `aug 20` |
 | `case.<fam>.day` / `phase_days` | integers ≥ 1 | No `day N / M` label and no tick strip. `day` is clamped into `1..phase_days`. Phases longer than 60 days compress the strip proportionally; the label still states the true numbers |
 | `case.<fam>.v1_count` | number | The big counter is omitted |
 | `case.<fam>.v1_target` | number | Counter renders without the `/ N needed` half |
+| `case.<fam>.v1_clusters` | number | The `· N events` denominator after the counter is omitted |
 | `case.<fam>.note` | string | Only used by the dormant block; omitted if absent |
 | `scorecard` | array (max 12 rendered) | The scorecard section is hidden |
 | `scorecard[].id` / `.label` | strings | Row skipped. The row is one nowrap line at 26rem, so a `label` over 32 characters is clipped with an ellipsis — keep them short |

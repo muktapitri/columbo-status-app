@@ -557,7 +557,16 @@
   var CHIP = { sealed: "sealed", running: "running", diagnostic: "diag" };
   var FAMILY_ORDER = ["sports", "weather", "econ"];
   var SERIES = { sports: "var(--series-sports)", weather: "var(--series-weather)" };
-  var CASE_OPENED_UTC = Date.UTC(2026, 6, 25);   // M4 opened 2026-07-25
+  // Era-2 day 0 (2026-08-03) as the FALLBACK only: when the payload carries
+  // case.sports.window_open the episode counter re-anchors on it, so a future
+  // era reset moves this page without an edit. The old literal (era 1's
+  // 2026-07-25) survived the 2026-08-02 reset and printed the wrong episode.
+  var caseOpenedUtc = Date.UTC(2026, 7, 3);
+  function anchorCase(d) {
+    var open = d && d.case && d.case.sports && d.case.sports.window_open;
+    var m = typeof open === "string" && /^(\d{4})-(\d{2})-(\d{2})$/.exec(open);
+    if (m) { caseOpenedUtc = Date.UTC(+m[1], +m[2] - 1, +m[3]); }
+  }
   var SVGNS = "http://www.w3.org/2000/svg";
   var el = function (id) { return document.getElementById(id); };
   var lastStamp = null;   // develop-in fires only when generated_at moves
@@ -1173,6 +1182,17 @@
     var weatherOn = !!(ages && typeof ages === "object" && isNum(ages.weather));
     var sportsCase = d.case && d.case.sports ? d.case.sports : null;
     var oosOpen = !!(sportsCase && str(sportsCase.phase, 24) === "out_of_sample");
+    // The boundary comes from the PAYLOAD (case.sports.out_of_sample_opens),
+    // never a literal: the hardcoded "opens aug 14" was era 1's date and read
+    // wrong the day the 2026-08-02 reset moved the window to open aug 20.
+    var oosWhen = "out-of-sample opens";
+    var oosRaw = sportsCase && str(sportsCase.out_of_sample_opens, 10);
+    var oosM = oosRaw && /^\d{4}-(\d{2})-(\d{2})$/.exec(oosRaw);
+    if (oosM) {
+      var MONTHS = ["jan", "feb", "mar", "apr", "may", "jun",
+                    "jul", "aug", "sep", "oct", "nov", "dec"];
+      oosWhen = "opens " + MONTHS[+oosM[1] - 1] + " " + (+oosM[2]);
+    }
     return [
       { big: "I", cap: "case opened", done: evals > 0 },
       { big: "100K", cap: "observations", done: evals >= 100000,
@@ -1186,7 +1206,7 @@
       { big: "30", cap: "clean month", done: streak >= 30,
         left: streak >= 7 && streak < 30 ? plural(30 - streak, "clean day") + " to go" : null },
       { big: "OOS", cap: "evidence counts", done: oosOpen,
-        left: oosOpen ? null : "opens aug 14" },
+        left: oosOpen ? null : oosWhen },
       { big: "50K", cap: "settled", done: settled >= 50000,
         left: settled > 0 && settled < 50000 ? (50000 - settled).toLocaleString("en-US") + " settlements to go" : null }
     ];
@@ -1407,7 +1427,7 @@
     el("daily").textContent = "“" + DAILY[dayIdx % DAILY.length] + "”";
   }
   function episode() {
-    var ep = Math.floor((Date.now() - CASE_OPENED_UTC) / 86400000) + 1;
+    var ep = Math.floor((Date.now() - caseOpenedUtc) / 86400000) + 1;
     return ep >= 1 && ep < 1000 ? ep : null;
   }
 
@@ -1416,6 +1436,7 @@
     // `schema` is deliberately not branched on: the page renders whatever
     // fields are actually present, so schema 1 and schema 2 both work and a
     // future bump cannot blank it.
+    anchorCase(d);
     var stamp = str(d.generated_at, 32);
     var gen = stamp ? new Date(stamp) : null;
     if (!gen || isNaN(gen.getTime())) {

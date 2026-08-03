@@ -1,34 +1,12 @@
 [
-  {
-    "when": "2026-07-27T18:00:00Z",
-    "label": "S12 calibration fit \u2014 hold the 6b commit"
-  },
-  {
-    "when": "2026-07-28T15:00:00Z",
-    "label": "read the 24h watch gate G1\u2013G7"
-  },
-  {
-    "when": "2026-07-28T15:30:00Z",
-    "label": "settlement concordance \u2014 Kalshi vs NWS CLI"
-  },
-  {
-    "when": "2026-07-28T20:06:00Z",
-    "label": "6c ship window (only if the watch is green)"
-  },
-  {
-    "when": "2026-07-31",
-    "label": "confirm August Odds API plan"
-  },
-  {
-    "when": "2026-08-14",
-    "label": "out-of-sample opens \u2014 evidence starts counting"
-  },
-  {
-    "when": "2026-09-27",
-    "label": "MLB season close \u2014 weather carries the case"
-  },
-  {
-    "when": "2026-08-01T18:00:00Z",
-    "label": "X0 \u2014 multi-league dossier evening (NFL first, WNBA rehearsal)"
-  }
+  { "when": "2026-08-05", "label": "6c calibration ships — weather goes version-matched" },
+  { "when": "2026-08-09", "label": "era-1 archive T+7d — deletion decision (operator)" },
+  { "when": "2026-08-10", "label": "sharp coverage due — suite goes red if unmeasured" },
+  { "when": "2026-08-20", "label": "sports out-of-sample opens — evidence starts counting" },
+  { "when": "2026-08-21", "label": "weather out-of-sample opens" },
+  { "when": "2026-09-09", "label": "re-verify NFL close vs live listings" },
+  { "when": "2026-09-10", "label": "NFL enable boundary — four gated items first" },
+  { "when": "2026-09-27", "label": "MLB season close — verdict window shuts" },
+  { "when": "2026-10-01", "label": "weather window closes — weather verdict" },
+  { "when": "2026-10-06", "label": "NBA: pack, window pin, postponement language" }
 ]
