@@ -28,7 +28,7 @@
   --grid:     #161C29;          /* chart gridlines: one step off-surface */
   --ink:      #E8ECF4;
   --ink-2:    #97A0B3;
-  --ink-3:    #5D6677;
+  --ink-3:    #8A93A5;
   --gold:     #8FA6C8;          /* the single accent: cold steel (name kept for the seam) */
   --gold-dim: #4A5568;
   --sports:   #B26F1C;
@@ -64,7 +64,8 @@ a { color: var(--gold); }
 .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 960px) {
   .grid { grid-template-columns: minmax(0,1fr) 344px; align-items: start; }
-  .rail { position: sticky; top: 14px; }
+  .rail { position: sticky; top: 14px; max-height: calc(100vh - 28px);
+    max-height: calc(100dvh - 28px); overflow-y: auto; }
 }
 .main, .rail { display: grid; gap: 14px; min-width: 0; align-content: start; }
 
@@ -86,12 +87,12 @@ section.card {
 .hidden { display: none !important; }
 
 /* dotted-leader rows — the crow, kept from the original file */
-.crow { display: grid; gap: 0; font: 400 13px var(--mono); }
+.crow { display: grid; gap: 0; font: 400 13px/1.5 var(--mono); }
 .crow .r {
   display: flex; align-items: baseline; gap: 8px;
   padding: 6.5px 0; color: var(--ink-2);
 }
-.crow .r .dots { flex: 1; border-bottom: 1px dotted var(--gold-dim); opacity: .55; transform: translateY(-4px); }
+.crow .r .dots { flex: 1; border-bottom: 1px dotted var(--gold-dim); opacity: .55; transform: translateY(-0.31em); }
 .crow .r b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* ============================================================ masthead */
@@ -106,7 +107,7 @@ header.mast {
 .mast .meta b { color: var(--gold); font-weight: 500; }
 
 .verdictbar {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 18px;
   background: var(--panel);
   border: 1px solid var(--hairline);
   border-left: 3px solid var(--gold);
@@ -114,7 +115,7 @@ header.mast {
   padding: 15px 18px;
   margin-bottom: 14px;
 }
-.lamp { width: 13px; height: 13px; border-radius: 50%; flex: none; }
+.lamp { width: 13px; height: 13px; border-radius: 50%; flex: none; align-self: center; }
 .lamp.good { background: var(--good); box-shadow: 0 0 14px color-mix(in srgb, var(--good) 60%, transparent); }
 .lamp.warn { background: var(--warn); box-shadow: 0 0 14px color-mix(in srgb, var(--warn) 60%, transparent); }
 .lamp.crit { background: var(--crit); box-shadow: 0 0 14px color-mix(in srgb, var(--crit) 60%, transparent); }
@@ -136,8 +137,9 @@ header.mast {
 .setupline code { color: var(--ink); background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
 
 /* ============================================================ exhibit A — the windows */
+#soak { margin-bottom: 14px; }
 .soak .lane { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: center; padding: 8px 0 2px; }
-.soak .who { font: 500 12px/1.3 var(--mono); color: var(--ink-2); display: flex; align-items: center; gap: 7px; text-transform: capitalize; }
+.soak .who { font: 500 11px/1.3 var(--mono); color: var(--ink-2); display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: .1em; }
 .soak .who .sw { width: 9px; height: 9px; border-radius: 2px; }
 .tl { position: relative; height: 30px; }
 .tl .seg { position: absolute; top: 11px; height: 8px; border-radius: 4px; }
@@ -164,7 +166,7 @@ header.mast {
 }
 .fam .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .fam .head .sw { width: 9px; height: 9px; border-radius: 2px; }
-.fam .head .name { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.fam .head .name { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .fam .head .phase { margin-left: auto; font: 500 10.5px/1 var(--mono); color: var(--gold);
   border: 1px solid var(--gold-dim); padding: 3px 9px; border-radius: 99px; white-space: nowrap; letter-spacing: .06em; }
 .fam .big { font: 400 34px/1.05 var(--slab); color: var(--ink); }
@@ -175,7 +177,7 @@ header.mast {
 
 /* ============================================================ scorecard */
 .score .row {
-  display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: baseline;
   padding: 8px 2px; border-bottom: 1px dotted color-mix(in srgb, var(--gold-dim) 55%, transparent);
   font: 400 13px var(--mono);
 }
@@ -185,23 +187,22 @@ header.mast {
 .score .val { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
 .chip { font: 500 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase;
   padding: 4px 9px; border-radius: 3px; border: 1px solid var(--hairline); color: var(--ink-3); }
-.chip.sealed { border-color: var(--gold-dim); color: var(--gold-dim); }
-.chip.sealed::before { content: "🔒 "; font-size: 9px; }
+.chip.sealed { border-color: var(--gold-dim); color: var(--ink-3); }
 .chip.counting { color: var(--ink); border-color: var(--gold); }
 .chip.running { color: var(--ink-2); }
 
 /* ============================================================ charts */
-.chart { width: 100%; display: block; }
+.chart { display: block; max-width: 100%; }
 .chart text { font: 400 10px var(--mono); fill: var(--ink-3); }
 .chart text.em { fill: var(--ink-2); font-weight: 500; }
 .lane-block + .lane-block { margin-top: 16px; }
 .lane-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
 .lane-head .sw { width: 8px; height: 8px; border-radius: 2px; }
-.lane-head .t { font: 500 11.5px var(--mono); color: var(--ink-2); }
+.lane-head .t { font: 500 11px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .1em; }
 .lane-head .total { margin-left: auto; font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
 details.twin { margin-top: 8px; }
-details.twin summary { font: 400 11px var(--mono); color: var(--ink-3); cursor: pointer; }
-details.twin table { width: 100%; border-collapse: collapse; margin-top: 6px; font: 400 11.5px var(--mono); }
+details.twin summary { font: 400 11px var(--mono); color: var(--ink-3); cursor: pointer; padding: 6px 0; }
+details.twin table { width: 100%; border-collapse: collapse; margin-top: 2px; font: 400 11.5px var(--mono); }
 details.twin td, details.twin th { text-align: right; padding: 2.5px 6px; border-bottom: 1px solid var(--grid); color: var(--ink-2); }
 details.twin th { color: var(--ink-3); font-weight: 500; }
 details.twin td:first-child, details.twin th:first-child { text-align: left; }
@@ -221,6 +222,7 @@ details.twin td:first-child, details.twin th:first-child { text-align: left; }
 .meter { margin: 10px 0 4px; }
 .meter .lbl { display: flex; justify-content: space-between; font: 400 12px var(--mono); color: var(--ink-2); margin-bottom: 5px; }
 .meter .lbl b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.famlbl { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
 .meter .track { position: relative; height: 6px; border-radius: 3px; background: var(--panel-2); box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
 .meter .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px;
   background: var(--gold); }
@@ -229,10 +231,10 @@ details.twin td:first-child, details.twin th:first-child { text-align: left; }
 .meter .note { margin-top: 4px; font: 400 11px var(--mono); color: var(--crit); }
 
 /* docket */
-.docket .item { display: grid; grid-template-columns: 74px 1fr; gap: 10px; padding: 7.5px 2px;
+.docket .item { display: grid; grid-template-columns: 74px 1fr; gap: 10px; padding: 7.5px 2px; align-items: baseline;
   border-bottom: 1px dotted color-mix(in srgb, var(--gold-dim) 55%, transparent); font-size: 13.5px; }
 .docket .item:last-child { border-bottom: 0; }
-.docket .when { font: 500 11.5px var(--mono); color: var(--ink-3); white-space: nowrap; padding-top: 2px; }
+.docket .when { font: 500 11.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
 .docket .what { color: var(--ink-2); font-family: var(--serif); }
 .docket .item.next .when { color: var(--gold); }
 .docket .item.next .what { color: var(--ink); }
@@ -265,20 +267,20 @@ details.twin td:first-child, details.twin th:first-child { text-align: left; }
 .latest .c .v { font: 400 20px/1.3 var(--slab); color: var(--ink); }
 .latest .meta { margin-top: 8px; font: 400 11.5px var(--mono); color: var(--ink-3); }
 footer { margin-top: 24px; text-align: center; font: 400 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
-footer b { color: var(--gold-dim); font-weight: 500; }
+footer b { color: var(--gold); font-weight: 500; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
 
   <header class="mast">
-    <div class="brand">Columbo<span class="dot">.</span></div>
+    <h1 class="brand">Columbo<span class="dot">.</span></h1>
     <div class="sub">Case file · validation harness</div>
     <div class="meta"><span id="epday"></span><span id="checked"></span></div>
   </header>
 
-  <div class="verdictbar" id="verdictbar">
-    <span class="lamp idle" id="lamp"></span>
+  <div class="verdictbar" id="verdictbar" role="status">
+    <span class="lamp idle" id="lamp" aria-hidden="true"></span>
     <span class="verdict-word" id="vword">—</span>
     <span class="verdict-sub" id="vsub"></span>
     <span class="verdict-reasons hidden" id="vreasons"></span>
@@ -288,7 +290,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
   <div class="kpis hidden" id="kpis"></div>
 
   <section class="card soak hidden" id="soak">
-    <div class="exhibit">Exhibit A <span class="tag">— the accumulation windows</span></div>
+    <h2 class="exhibit">Exhibit A <span class="tag">— the accumulation windows</span></h2>
     <div id="soaklanes"></div>
   </section>
 
@@ -296,33 +298,33 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     <div class="main">
 
       <section class="card hidden" id="case">
-        <div class="exhibit">Exhibit B <span class="tag">— the case, by family</span></div>
+        <h2 class="exhibit">Exhibit B <span class="tag">— the case, by family</span></h2>
         <div class="case-grid" id="casegrid"></div>
       </section>
 
       <section class="card hidden" id="scorecard">
-        <div class="exhibit">Exhibit C <span class="tag">— the pre-registered criteria</span></div>
+        <h2 class="exhibit">Exhibit C <span class="tag">— the pre-registered criteria</span></h2>
         <div class="score" id="scorerows"></div>
       </section>
 
       <section class="card hidden" id="pulse">
-        <div class="exhibit">Surveillance <span class="tag">— intake, last 24 h</span></div>
+        <h2 class="exhibit">Surveillance <span class="tag">— intake, last 24 h</span></h2>
         <div id="pulselanes"></div>
       </section>
 
       <section class="card hidden" id="locker">
-        <div class="exhibit">Evidence locker <span class="tag">— cumulative, by day</span></div>
+        <h2 class="exhibit">Evidence locker <span class="tag">— cumulative, by day</span></h2>
         <div id="lockerlanes"></div>
       </section>
 
       <section class="card hidden" id="intercept">
-        <div class="exhibit"><span class="sw" style="background:var(--weather)"></span>Intercept schedule <span class="tag">— NBP publication windows</span></div>
+        <h2 class="exhibit"><span class="sw" style="background:var(--weather)"></span>Intercept schedule <span class="tag">— NBP publication windows</span></h2>
         <div class="rail-track" id="railtrack"></div>
         <div class="next-int" id="nextint"></div>
       </section>
 
       <section class="card hidden" id="latest">
-        <div class="exhibit">Latest observation</div>
+        <h2 class="exhibit">Latest observation</h2>
         <div class="latest" id="latestbody"></div>
       </section>
 
@@ -330,24 +332,24 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     <div class="rail">
 
       <section class="card hidden" id="probe">
-        <div class="exhibit">Probe age <span class="tag">— dead-man</span></div>
+        <h2 class="exhibit">Probe age <span class="tag">— dead-man</span></h2>
         <div id="probebody"></div>
       </section>
 
       <section class="card hidden" id="budget">
-        <div class="exhibit">Expenses</div>
+        <h2 class="exhibit">Expenses</h2>
         <div id="budgetbody"></div>
         <div class="crow" id="ledger"></div>
       </section>
 
-      <section class="card" id="docket-sec">
-        <div class="exhibit">On the docket</div>
+      <section class="card hidden" id="docket-sec">
+        <h2 class="exhibit">On the docket</h2>
         <div class="docket" id="docket"></div>
       </section>
 
       <section class="card finding" id="finding">
         <div class="stamp">Finding of record</div>
-        <div class="exhibit">Exhibit D <span class="tag">— sports · taker leg</span></div>
+        <h2 class="exhibit">Exhibit D <span class="tag">— era-1 MLB · taker leg</span></h2>
         <div class="headline">The fee is bigger than the edge.</div>
         <div class="bar"><span>threshold τ</span>
           <span class="track"><span class="fill" style="width:100%;background:var(--gold-dim)"></span></span>
@@ -356,25 +358,27 @@ footer b { color: var(--gold-dim); font-weight: 500; }
           <span class="track"><span class="fill" style="width:85.9%;background:var(--crit)"></span></span>
           <b>1.72¢</b></div>
         <div class="bar"><span>best edge ever</span>
-          <span class="track"><span class="fill" style="width:60.5%;background:var(--warn)"></span></span>
+          <span class="track"><span class="fill" style="width:60.5%;background:color-mix(in srgb, var(--sports) 60%, var(--panel-2))"></span></span>
           <b>1.21¢</b></div>
-        <p class="foot">Every observation starts ~0.57¢ behind the book and pays
-        1.72¢ to cross it. The best net edge ever seen never reached the 2¢ bar —
-        zero qualifying signals in n&nbsp;=&nbsp;87,470. The taker thesis died in
-        eight days. The maker leg and the weather family are the case that remains.
-        <span class="cite">Amendment of record · 2026-07-26 · era 1</span></p>
+        <p class="foot">The average observation starts ~0.57¢ behind the book
+        and pays 1.72¢ to cross it. The best net edge ever seen never reached
+        the 2¢ bar — zero qualifying signals in n&nbsp;=&nbsp;87,470 era-1 MLB
+        observations. The taker thesis died in eight days. The maker leg is
+        parked behind the fill-model wall; the weather family is the case that
+        remains.
+        <span class="cite">Finding of record · per amendment 2026-07-26 · era 1 · MLB</span></p>
       </section>
 
       <section class="card notes hidden" id="notes">
-        <div class="exhibit">Field notes</div>
+        <h2 class="exhibit">Field notes</h2>
         <div id="notesbody"></div>
       </section>
 
     </div>
   </div>
 
-  <footer id="foot"></footer>
-</div>
+  <footer>forward-logging validation harness · <b>places no orders</b></footer>
+</main>
 
 <script>
 (function () {
@@ -396,6 +400,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
   // payload so a future era reset moves this page with zero edits.
   var caseOpenedUtc = Date.UTC(2026, 7, 3);
 
+  var lastData = null, lastLaneW = 0;
   var el = function (id) { return document.getElementById(id); };
   var SVGNS = "http://www.w3.org/2000/svg";
 
@@ -426,6 +431,9 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     if (t == null) return null;
     return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).toLowerCase();
   }
+  function nowClock() {
+    return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
+  }
 
   /* ============================== verdict & states */
   function setVerdict(lead, kind, sub, rest) {
@@ -446,8 +454,12 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     return Math.ceil((t0 - Date.now()) / 864e5);
   }
   function sentenceFor(v, d) {
+    // The publisher's verdict vocabulary is green|yellow|red
+    // (publish_status.py schema: verdict: str = "green").
     var c = d.case && d.case.sports;
-    if (v === "HEALTHY") {
+    var r0 = Array.isArray(d.reasons) ? str(d.reasons[0], 110) : null;
+    if (r0 && !/[.!?…]$/.test(r0)) r0 += ".";
+    if (v === "green") {
       if (c && c.phase === "in_sample" && c.out_of_sample_opens) {
         var n = daysUntil(c.out_of_sample_opens);
         if (n != null && n > 0)
@@ -457,9 +469,11 @@ footer b { color: var(--gold-dim); font-weight: 500; }
         return ["On track.", "Evidence is counting — " + c.v1_count + " of " + c.v1_target + " qualifying signals in hand."];
       return ["On track.", "Collection is healthy across every family."];
     }
-    if (v === "ATTENTION") return ["Needs a look.", ""];
-    if (v === "NEEDS EYES") return ["Something's wrong.", ""];
-    return [v || "—", ""];
+    if (v === "yellow")
+      return ["Needs a look.", r0 || "One check wants attention — the reasons are below."];
+    if (v === "red")
+      return ["Something's wrong.", r0 || "A tripwire has fired — the reasons are below."];
+    return [(v || "—").toUpperCase(), ""]; // unknown vocabulary: verbatim word, idle lamp
   }
   function setup(msgHtmlSafe) {
     var s = el("setup");
@@ -468,7 +482,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
   }
   function showData(on) {
     ["kpis", "soak", "case", "scorecard", "pulse", "locker", "intercept", "latest",
-     "probe", "notes", "budget"].forEach(function (id) { if (!on) show(id, false); });
+     "probe", "notes", "budget", "docket-sec", "finding"].forEach(function (id) { if (!on) show(id, false); });
   }
 
   /* ============================== the KPI band */
@@ -619,7 +633,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     }
     var rows = div("crow");
     crowRow(rows, "window", (fmtDay(c.window_open) || "?") + " → " + (fmtDay(c.window_close) || "open"));
-    if (c.out_of_sample_opens) crowRow(rows, "evidence counts", fmtDay(c.out_of_sample_opens));
+    if (c.out_of_sample_opens) crowRow(rows, "counts from", fmtDay(c.out_of_sample_opens));
     if (isNum(c.day) && isNum(c.phase_days)) crowRow(rows, "phase day", c.day + " / " + c.phase_days);
     card.appendChild(rows);
     return card;
@@ -675,12 +689,33 @@ footer b { color: var(--gold-dim); font-weight: 500; }
   }
 
   /* ============================== charts */
-  function svg(w, h) {
+  function svg(w, h, label) {
     var s = document.createElementNS(SVGNS, "svg");
     s.setAttribute("viewBox", "0 0 " + w + " " + h);
+    s.setAttribute("width", w);
+    s.setAttribute("height", h);
     s.setAttribute("class", "chart");
     s.setAttribute("role", "img");
+    if (label) s.setAttribute("aria-label", label);
     return s;
+  }
+  function laneWidth() {
+    // Pixel-space charts (one SVG unit = one CSS pixel), so 10px type is
+    // really 10px on every device. Measure the always-visible main column;
+    // the chart's own card may still be display:none at render time.
+    var m = document.querySelector(".main");
+    var w = m ? m.clientWidth - 38 : 0;
+    return w > 120 ? w : 720;
+  }
+  function barPath(x, y, w, h) {
+    // Top-only rounded corners: bars sit ON the axis instead of floating
+    // off it on rounded feet.
+    var r = Math.min(2, h, w / 2);
+    return "M" + x + " " + (y + r) +
+      " q0," + (-r) + " " + r + "," + (-r) +
+      " h" + (w - 2 * r) +
+      " q" + r + ",0 " + r + "," + r +
+      " v" + (h - r) + " h" + (-w) + " z";
   }
   function sel(parent, tag, attrs) {
     var n = document.createElementNS(SVGNS, tag);
@@ -705,49 +740,55 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     return det;
   }
 
-  function hourlyLane(fam, values) {
-    var W = 720, H = 88, PAD = 2, n = 24;
+  function hourlyLane(fam, values, W) {
+    var H = 88, n = 24;
     var block = div("lane-block");
     var head = div("lane-head");
     var sw = div("sw"); sw.style.background = SERIES[fam] || "var(--ink-3)";
     head.appendChild(sw);
-    head.appendChild(div("t", fam + " · evaluations per hour"));
-    var total = values.reduce(function (a, b) { return a + (isNum(b) ? b : 0); }, 0);
+    head.appendChild(div("t", fam + " · evaluations per hour (local)"));
+    // Chronological axis: oldest hour at the left, the current hour at the
+    // right edge. Buckets arrive UTC-indexed; labels are device-local.
+    var h0 = new Date().getUTCHours();
+    var tz = new Date().getTimezoneOffset() / 60;
+    var order = [];
+    for (var k = 1; k <= 24; k++) order.push((h0 + k) % 24);
+    var vals = order.map(function (u) { return isNum(values[u]) ? values[u] : 0; });
+    var total = 0;
+    vals.forEach(function (v) { total += v; });
     head.appendChild(div("total", total.toLocaleString("en-US")));
     block.appendChild(head);
 
-    var s = svg(W, H);
-    var max = Math.max.apply(null, values.map(function (v) { return isNum(v) ? v : 0; }).concat([1]));
-    var bw = (W - PAD * (n - 1)) / n;
-    var peakIdx = values.indexOf(Math.max.apply(null, values));
+    var s = svg(W, H, fam + " evaluations per hour over the last 24 hours");
+    var max = Math.max.apply(null, vals.concat([1]));
+    var peakIdx = -1, peakVal = 0;
+    vals.forEach(function (v, i) { if (v > peakVal) { peakVal = v; peakIdx = i; } });
+    var slotW = W / n;
+    var bw = Math.min(14, Math.max(3, slotW - 2));
+    var color = HEX[fam] || "#6E6049";
     sel(s, "line", { x1: 0, y1: H - 14.5, x2: W, y2: H - 14.5, stroke: "var(--grid)", "stroke-width": 1 });
-    values.forEach(function (v, i) {
-      var val = isNum(v) ? v : 0;
-      var bh = Math.max(val > 0 ? 2 : 0, (H - 32) * val / max);
-      var x = i * (bw + PAD);
-      sel(s, "rect", {
-        x: x, y: H - 15 - bh, width: bw, height: Math.max(bh, 0.01),
-        rx: 2, fill: HEX[fam] || "#6E6049", opacity: val > 0 ? 1 : 0
-      });
+    vals.forEach(function (val, i) {
+      var bh = val > 0 ? Math.max(2, (H - 32) * val / max) : 0;
+      var x = i * slotW + (slotW - bw) / 2;
+      if (bh > 0) sel(s, "path", { d: barPath(x, H - 15 - bh, bw, bh), fill: color });
       if (i % 6 === 0) {
-        // Bars are UTC-indexed in the payload; LABELS are device-local
-        // (operator rule: one reference frame, the reader's).
-        var localH = (i - new Date().getTimezoneOffset() / 60 + 24) % 24;
+        var localH = (order[i] - tz + 24) % 24;
         var lbl = sel(s, "text", { x: x + bw / 2, y: H - 3, "text-anchor": "middle" });
-        lbl.textContent = String(Math.round(localH)).padStart(2, "0");
+        lbl.textContent = String(Math.round(localH) % 24).padStart(2, "0");
       }
       if (i === peakIdx && val > 0) {
-        var peak = sel(s, "text", { x: Math.min(Math.max(x + bw / 2, 14), W - 14), y: H - 21 - bh, "text-anchor": "middle", "class": "em" });
+        var px = Math.min(Math.max(x + bw / 2, 22), W - 22);
+        var peak = sel(s, "text", { x: px, y: H - 21 - bh, "text-anchor": "middle", "class": "em" });
         peak.textContent = val.toLocaleString("en-US");
       }
     });
     block.appendChild(s);
     block.appendChild(twinTable(
       ["hour (local)", "evaluations"],
-      values.map(function (v, i) {
-        var localH = (i - new Date().getTimezoneOffset() / 60 + 24) % 24;
-        return [String(Math.round(localH)).padStart(2, "0") + ":00", isNum(v) ? v : 0];
-      }).filter(function (r) { return r[1] > 0; })
+      vals.map(function (v, i) {
+        var localH = (order[i] - tz + 24) % 24;
+        return [String(Math.round(localH) % 24).padStart(2, "0") + ":00", v];
+      })
     ));
     return block;
   }
@@ -757,23 +798,25 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     var h = d.hourly_evaluations_24h;
     var any = false;
     if (h && typeof h === "object") {
+      var W = laneWidth();
+      lastLaneW = W;
       FAMILY_ORDER.forEach(function (fam) {
         var v = h[fam];
         if (Array.isArray(v) && v.length === 24 && v.some(isNum)) {
-          host.appendChild(hourlyLane(fam, v)); any = true;
+          host.appendChild(hourlyLane(fam, v, W)); any = true;
         }
       });
     }
     show("pulse", any);
   }
 
-  function cumulativeLane(fam, pairs) {
-    var W = 720, H = 96;
+  function cumulativeLane(fam, pairs, W) {
+    var H = 96;
     var block = div("lane-block");
     var head = div("lane-head");
     var sw = div("sw"); sw.style.background = SERIES[fam] || "var(--ink-3)";
     head.appendChild(sw);
-    head.appendChild(div("t", fam + " · cumulative since window open"));
+    head.appendChild(div("t", fam + " · cumulative · last " + pairs.length + (pairs.length === 1 ? " day" : " days")));
     block.appendChild(head);
 
     var cum = 0;
@@ -781,11 +824,11 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     var max = Math.max(cum, 1);
     head.appendChild(div("total", cum.toLocaleString("en-US")));
 
-    var s = svg(W, H);
+    var s = svg(W, H, fam + " cumulative evaluations, last " + pairs.length + " days");
     sel(s, "line", { x1: 0, y1: H - 14.5, x2: W, y2: H - 14.5, stroke: "var(--grid)", "stroke-width": 1 });
     var n = pts.length;
     var xAt = function (i) { return n === 1 ? W - 20 : 8 + i * (W - 36) / (n - 1); };
-    var yAt = function (v) { return (H - 28) * (1 - v / max) + 9; };
+    var yAt = function (v) { return (H - 24) * (1 - v / max) + 9; }; // yAt(0) === H-15, the axis
     var color = HEX[fam] || "#6E6049";
     var path = "M" + pts.map(function (p, i) { return xAt(i) + " " + yAt(p.v); }).join(" L");
     sel(s, "path", { d: path + " L" + xAt(n - 1) + " " + (H - 15) + " L" + xAt(0) + " " + (H - 15) + " Z",
@@ -808,6 +851,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     var host = el("lockerlanes"); clear(host);
     var daily = d.daily_evaluations;
     var any = false;
+    var W = laneWidth();
     if (daily && typeof daily === "object") {
       FAMILY_ORDER.forEach(function (fam) {
         var rows = daily[fam];
@@ -815,7 +859,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
         var pairs = rows.slice(-35).filter(function (p) {
           return Array.isArray(p) && typeof p[0] === "string" && isNum(p[1]);
         });
-        if (pairs.length) { host.appendChild(cumulativeLane(fam, pairs)); any = true; }
+        if (pairs.length) { host.appendChild(cumulativeLane(fam, pairs, W)); any = true; }
       });
     }
     show("locker", any);
@@ -888,13 +932,15 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     if (ages && typeof ages === "object") {
       FAMILY_ORDER.forEach(function (fam) {
         if (!isNum(ages[fam])) return;
+        var ph = d.case && d.case[fam] && d.case[fam].phase;
+        if (ph === "closed" || ph === "not_started") return; // season quiet, not late
         var limitH = DEADMAN_H[fam];
         if (!limitH) return;
         var ageMin = ages[fam] / 60;
         var frac = Math.min(1, ages[fam] / (limitH * 3600));
         var m = div("meter");
         var lbl = div("lbl");
-        lbl.appendChild(div(null, fam + " · last evaluation"));
+        lbl.appendChild(div("famlbl", fam + " · last evaluation"));
         var b = document.createElement("b");
         b.textContent = ageMin < 90 ? Math.round(ageMin) + " min ago" : (ageMin / 60).toFixed(1) + " h ago";
         lbl.appendChild(b);
@@ -1016,7 +1062,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
           host.appendChild(row);
         });
       })
-      .catch(function () {});
+      .catch(function () { show("docket-sec", false); });
   }
 
   /* ============================== field notes */
@@ -1051,6 +1097,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
 
   /* ============================== render */
   function render(d) {
+    lastData = d;
     var stamp = str(d.generated_at, 32);
     var gen = stamp ? new Date(stamp) : null;
     if (!gen || isNaN(gen.getTime())) {
@@ -1071,8 +1118,8 @@ footer b { color: var(--gold-dim); font-weight: 500; }
         Math.round(staleMin) + " min since the last report · " + logged,
         "The publisher has missed its window.");
     } else {
-      var v = str(d.verdict, 16) || "—";
-      var kind = v === "HEALTHY" ? "good" : v === "ATTENTION" ? "warn" : v === "NEEDS EYES" ? "crit" : "idle";
+      var v = str(d.verdict, 16) || "";
+      var kind = v === "green" ? "good" : v === "yellow" ? "warn" : v === "red" ? "crit" : "idle";
       var s = sentenceFor(v, d);
       setVerdict(s[0], kind, logged, s[1]);
     }
@@ -1096,11 +1143,8 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     renderBudget(d);
     renderLatest(d);
     renderNotes(d);
-    el("foot").textContent = "";
-    var f = el("foot");
-    f.appendChild(document.createTextNode("forward-logging validation harness · "));
-    var b = document.createElement("b"); b.textContent = "places no orders";
-    f.appendChild(b);
+    show("finding", true);
+    show("docket-sec", el("docket").childNodes.length > 0);
   }
 
   /* ============================== fetch loop */
@@ -1125,10 +1169,10 @@ footer b { color: var(--gold-dim); font-weight: 500; }
       if (!r.ok) throw new Error("http " + r.status);
       return r.json();
     }).then(function (d) {
-      el("checked").textContent = "checked " + new Date().toTimeString().slice(0, 5);
+      el("checked").textContent = "checked " + nowClock();
       render(d);
     }).catch(function (e) {
-      el("checked").textContent = "checked " + new Date().toTimeString().slice(0, 5);
+      el("checked").textContent = "checked " + nowClock();
       if (e.message === "auth") {
         setVerdict("Token rejected.", "warn", "", "Mint a new read token and reopen via the full link.");
         showData(false); setup("");
@@ -1142,6 +1186,16 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     });
   }
 
+  if (typeof ResizeObserver === "function") {
+    new ResizeObserver(function () {
+      if (!lastData) return;
+      var w = laneWidth();
+      if (Math.abs(w - lastLaneW) > 4) {
+        renderPulse(lastData);
+        renderLocker(lastData);
+      }
+    }).observe(document.querySelector(".main"));
+  }
   renderDocket();
   refresh();
   setInterval(refresh, 5 * 60 * 1000);
