@@ -363,9 +363,9 @@ footer b { color: var(--gold); font-weight: 500; }
         <p class="foot">The average observation starts ~0.57¢ behind the book
         and pays 1.72¢ to cross it. The best net edge ever seen never reached
         the 2¢ bar — zero qualifying signals in n&nbsp;=&nbsp;87,470 era-1 MLB
-        observations. The taker thesis died in eight days. The maker leg is
-        parked behind the fill-model wall; the weather family is the case that
-        remains.
+        observations. The taker thesis died in eight days. Whether that is a law
+        of the venue or an MLB artifact is era 2's question; weather is
+        untouched by any of it.
         <span class="cite">Finding of record · per amendment 2026-07-26 · era 1 · MLB</span></p>
       </section>
 
@@ -388,7 +388,7 @@ footer b { color: var(--gold); font-weight: 500; }
   var DEADMAN_H = { sports: 6, weather: 8 };
   var FAMILY_ORDER = ["sports", "weather", "econ"];
   var SERIES = { sports: "var(--sports)", weather: "var(--weather)" };
-  var HEX = { sports: "#B87A22", weather: "#4E8DD0" };
+  var HEX = { sports: "#B26F1C", weather: "#1F97CE" };
   var PHASE = {
     not_started: "clock not started",
     in_sample: "building the baseline",
@@ -430,6 +430,10 @@ footer b { color: var(--gold); font-weight: 500; }
     var t = dayUtc(s);
     if (t == null) return null;
     return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).toLowerCase();
+  }
+  function pad2(n) {
+    n = String(n);
+    return n.length < 2 ? "0" + n : n;
   }
   function nowClock() {
     return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
@@ -484,7 +488,8 @@ footer b { color: var(--gold); font-weight: 500; }
   function showData(on) {
     dead = !on;
     ["kpis", "soak", "case", "scorecard", "pulse", "locker", "intercept", "latest",
-     "probe", "notes", "budget", "docket-sec", "finding"].forEach(function (id) { if (!on) show(id, false); });
+     "probe", "notes", "budget", "docket-sec", "finding",
+     "vreasons"].forEach(function (id) { if (!on) show(id, false); });
   }
 
   /* ============================== the KPI band */
@@ -776,7 +781,7 @@ footer b { color: var(--gold); font-weight: 500; }
       if (i % 6 === 0) {
         var localH = (order[i] - tz + 24) % 24;
         var lbl = sel(s, "text", { x: x + bw / 2, y: H - 3, "text-anchor": "middle" });
-        lbl.textContent = String(Math.round(localH) % 24).padStart(2, "0");
+        lbl.textContent = pad2(Math.round(localH) % 24);
       }
       if (i === peakIdx && val > 0) {
         var px = Math.min(Math.max(x + bw / 2, 22), W - 22);
@@ -789,7 +794,7 @@ footer b { color: var(--gold); font-weight: 500; }
       ["hour (local)", "evaluations"],
       vals.map(function (v, i) {
         var localH = (order[i] - tz + 24) % 24;
-        return [String(Math.round(localH) % 24).padStart(2, "0") + ":00", v];
+        return [pad2(Math.round(localH) % 24) + ":00", v];
       })
     ));
     return block;
@@ -901,7 +906,7 @@ footer b { color: var(--gold); font-weight: 500; }
         host.appendChild(seg);
       });
       [0, 6, 12, 18, 24].forEach(function (h) {
-        var hr = div("hr", h === 24 ? "24" : String(h).padStart(2, "0"));
+        var hr = div("hr", h === 24 ? "24" : pad2(h));
         hr.style.left = (h / 24 * 100) + "%";
         host.appendChild(hr);
       });
@@ -1193,7 +1198,7 @@ footer b { color: var(--gold); font-weight: 500; }
 
   if (typeof ResizeObserver === "function") {
     new ResizeObserver(function () {
-      if (!lastData) return;
+      if (!lastData || dead) return;
       var w = laneWidth();
       if (Math.abs(w - lastLaneW) > 4) {
         renderPulse(lastData);
