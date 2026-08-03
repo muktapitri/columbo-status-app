@@ -631,7 +631,7 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     var head = div("lane-head");
     var sw = div("sw"); sw.style.background = SERIES[fam] || "var(--ink-3)";
     head.appendChild(sw);
-    head.appendChild(div("t", fam + " · evaluations per hour (UTC)"));
+    head.appendChild(div("t", fam + " · evaluations per hour"));
     var total = values.reduce(function (a, b) { return a + (isNum(b) ? b : 0); }, 0);
     head.appendChild(div("total", total.toLocaleString("en-US")));
     block.appendChild(head);
@@ -650,8 +650,11 @@ footer b { color: var(--gold-dim); font-weight: 500; }
         rx: 2, fill: HEX[fam] || "#6E6049", opacity: val > 0 ? 1 : 0
       });
       if (i % 6 === 0) {
+        // Bars are UTC-indexed in the payload; LABELS are device-local
+        // (operator rule: one reference frame, the reader's).
+        var localH = (i - new Date().getTimezoneOffset() / 60 + 24) % 24;
         var lbl = sel(s, "text", { x: x + bw / 2, y: H - 3, "text-anchor": "middle" });
-        lbl.textContent = String(i).padStart(2, "0");
+        lbl.textContent = String(Math.round(localH)).padStart(2, "0");
       }
       if (i === peakIdx && val > 0) {
         var peak = sel(s, "text", { x: Math.min(Math.max(x + bw / 2, 14), W - 14), y: H - 21 - bh, "text-anchor": "middle", "class": "em" });
@@ -660,9 +663,11 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     });
     block.appendChild(s);
     block.appendChild(twinTable(
-      ["utc hour", "evaluations"],
-      values.map(function (v, i) { return [String(i).padStart(2, "0") + ":00", isNum(v) ? v : 0]; })
-        .filter(function (r) { return r[1] > 0; })
+      ["hour (local)", "evaluations"],
+      values.map(function (v, i) {
+        var localH = (i - new Date().getTimezoneOffset() / 60 + 24) % 24;
+        return [String(Math.round(localH)).padStart(2, "0") + ":00", isNum(v) ? v : 0];
+      }).filter(function (r) { return r[1] > 0; })
     ));
     return block;
   }
@@ -975,8 +980,11 @@ footer b { color: var(--gold-dim); font-weight: 500; }
     var staleMin = (Date.now() - gen.getTime()) / 60000;
     renderMast(d);
 
-    var hhmm = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.exec(stamp);
-    var logged = hhmm ? "filed " + hhmm[1] + "Z" : "";
+    // Device-local, always (operator rule): the reader's clock is the only
+    // reference frame this page speaks.
+    var logged = "filed " + gen.toLocaleTimeString([], {
+      hour: "numeric", minute: "2-digit"
+    }).toLowerCase();
 
     if (staleMin > STALE_MIN) {
       setVerdict("GONE QUIET", "warn",
