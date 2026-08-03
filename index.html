@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14161A" media="(prefers-color-scheme: dark)">
-<title>Columbo · case file</title>
+<title>Columbo — Daily Position</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============================================================ tokens
    THE BRIEFING (operator-selected from the art-direction artifact, Direction 1,
@@ -84,7 +84,11 @@
   --serif: Georgia, "Times New Roman", serif;
 }
 :root[data-theme="dark"] {
-    --paper:    #14161A;
+  --sports:   #B26F1C;
+  --weather:  #1F97CE;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: Georgia, "Times New Roman", serif;
+  --paper:    #14161A;
   --paper-2:  #1C2129;
   --ink:      #E6E8EB;
   --ink-body: #C6CAD1;
@@ -382,7 +386,7 @@ footer b { color: var(--accent); font-weight: 600; }
       <span class="track"><span class="fill" style="width:100%;background:var(--ink-3)"></span></span>
       <b>2.00¢</b></div>
     <div class="bar"><span>taker fee</span>
-      <span class="track"><span class="fill" style="width:85.9%;background:var(--crit)"></span></span>
+      <span class="track"><span class="fill" style="width:86.0%;background:var(--crit)"></span></span>
       <b>1.72¢</b></div>
     <div class="bar"><span>best edge ever</span>
       <span class="track"><span class="fill" style="width:60.5%;background:color-mix(in srgb, var(--sports) 70%, var(--paper))"></span></span>
@@ -859,7 +863,7 @@ footer b { color: var(--accent); font-weight: 600; }
     vals.forEach(function (v, i) { if (v > peakVal) { peakVal = v; peakIdx = i; } });
     var slotW = W / n;
     var bw = Math.min(14, Math.max(3, slotW - 2));
-    var color = HEX[fam] || "#6E6049";
+    var color = HEX[fam];
     sel(s, "line", { x1: 0, y1: H - 14.5, x2: W, y2: H - 14.5, stroke: "var(--grid)", "stroke-width": 1 });
     vals.forEach(function (val, i) {
       var bh = val > 0 ? Math.max(2, (H - 32) * val / max) : 0;
@@ -895,6 +899,7 @@ footer b { color: var(--accent); font-weight: 600; }
       var W = laneWidth();
       lastLaneW = W;
       FAMILY_ORDER.forEach(function (fam) {
+        if (!HEX[fam]) return; // no validated series color, no lane
         var v = h[fam];
         if (Array.isArray(v) && v.length === 24 && v.some(isNum)) {
           host.appendChild(hourlyLane(fam, v, W)); any = true;
@@ -923,7 +928,7 @@ footer b { color: var(--accent); font-weight: 600; }
     var n = pts.length;
     var xAt = function (i) { return n === 1 ? W - 20 : 8 + i * (W - 36) / (n - 1); };
     var yAt = function (v) { return (H - 24) * (1 - v / max) + 9; }; // yAt(0) === H-15, the axis
-    var color = HEX[fam] || "#6E6049";
+    var color = HEX[fam];
     var path = "M" + pts.map(function (p, i) { return xAt(i) + " " + yAt(p.v); }).join(" L");
     sel(s, "path", { d: path + " L" + xAt(n - 1) + " " + (H - 15) + " L" + xAt(0) + " " + (H - 15) + " Z",
       fill: color, opacity: 0.1 });
@@ -950,6 +955,7 @@ footer b { color: var(--accent); font-weight: 600; }
     var W = laneWidth();
     if (daily && typeof daily === "object") {
       FAMILY_ORDER.forEach(function (fam) {
+        if (!HEX[fam]) return; // no validated series color, no lane
         var rows = daily[fam];
         if (!Array.isArray(rows)) return;
         var pairs = rows.slice(-35).filter(function (p) {
@@ -969,7 +975,10 @@ footer b { color: var(--accent); font-weight: 600; }
              isNum(sched.fetchable_min) && isNum(sched.envelope_min) &&
              sched.init_hours.every(isNum);
     show("intercept", !!ok);
-    if (!ok) return;
+    if (!ok) {
+      if (railTimer) { clearInterval(railTimer); railTimer = null; }
+      return;
+    }
     var host = el("railtrack");
     function draw() {
       clear(host);
@@ -1193,14 +1202,15 @@ footer b { color: var(--accent); font-weight: 600; }
 
   /* ============================== render */
   function render(d) {
-    lastData = d;
-    dead = false;
     var stamp = str(d.generated_at, 32);
     var gen = stamp ? new Date(stamp) : null;
     if (!gen || isNaN(gen.getTime())) {
       setVerdict("No signal.", "warn", "", "The report carried no timestamp.");
+      showData(false);
       return;
     }
+    lastData = d;
+    dead = false;
     var staleMin = (Date.now() - gen.getTime()) / 60000;
     renderMast(d);
 
