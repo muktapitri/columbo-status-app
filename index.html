@@ -480,7 +480,9 @@ footer b { color: var(--gold); font-weight: 500; }
     s.innerHTML = msgHtmlSafe;            // static copy only — never payload
     show("setup", !!msgHtmlSafe);
   }
+  var dead = false;   // a failure state owns the page until render() clears it
   function showData(on) {
+    dead = !on;
     ["kpis", "soak", "case", "scorecard", "pulse", "locker", "intercept", "latest",
      "probe", "notes", "budget", "docket-sec", "finding"].forEach(function (id) { if (!on) show(id, false); });
   }
@@ -835,7 +837,9 @@ footer b { color: var(--gold); font-weight: 500; }
       fill: color, opacity: 0.1 });
     sel(s, "path", { d: path, fill: "none", stroke: color, "stroke-width": 2 });
     sel(s, "circle", { cx: xAt(n - 1), cy: yAt(cum), r: 4, fill: color, stroke: "var(--panel)", "stroke-width": 2 });
-    var lbl = sel(s, "text", { x: Math.max(xAt(n - 1) - 8, 40), y: Math.max(yAt(cum) - 8, 10), "text-anchor": "end", "class": "em" });
+    // Near the ceiling the label flips under the stroke instead of through it.
+    var ly = yAt(cum) < 22 ? yAt(cum) + 16 : yAt(cum) - 8;
+    var lbl = sel(s, "text", { x: Math.max(xAt(n - 1) - 8, 40), y: ly, "text-anchor": "end", "class": "em" });
     lbl.textContent = cum.toLocaleString("en-US");
     if (n > 1) {
       var d0 = sel(s, "text", { x: 8, y: H - 3 }); d0.textContent = fmtDay(pts[0].day) || "";
@@ -1047,7 +1051,7 @@ footer b { color: var(--gold); font-weight: 500; }
           .filter(function (it) { return isFinite(it.t) && it.label && it.t > now - 864e5; })
           .sort(function (a, b) { return a.t - b.t; })
           .slice(0, 8);
-        show("docket-sec", upcoming.length > 0);
+        show("docket-sec", upcoming.length > 0 && !dead);
         upcoming.forEach(function (it, i) {
           var row = div("item" + (i === 0 ? " next" : ""));
           // A date-only milestone names a PROJECT calendar day; render the
@@ -1098,6 +1102,7 @@ footer b { color: var(--gold); font-weight: 500; }
   /* ============================== render */
   function render(d) {
     lastData = d;
+    dead = false;
     var stamp = str(d.generated_at, 32);
     var gen = stamp ? new Date(stamp) : null;
     if (!gen || isNaN(gen.getTime())) {
