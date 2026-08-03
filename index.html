@@ -292,7 +292,7 @@ footer { margin-top: 22px; text-align: center; font: 400 11px var(--mono); color
         <div id="probebody"></div>
       </section>
 
-      <section class="card" id="budget">
+      <section class="card hidden" id="budget">
         <div class="eyebrow">Budget</div>
         <div id="budgetbody"></div>
         <div class="kv" id="ledger"></div>
@@ -397,7 +397,7 @@ footer { margin-top: 22px; text-align: center; font: 400 11px var(--mono); color
   }
   function showData(on) {
     ["soak", "case", "scorecard", "pulse", "locker", "intercept", "latest",
-     "probe", "notes"].forEach(function (id) { if (!on) show(id, false); });
+     "probe", "notes", "budget"].forEach(function (id) { if (!on) show(id, false); });
   }
 
   /* ================================================== the soak timeline */
@@ -815,12 +815,15 @@ footer { margin-top: 22px; text-align: center; font: 400 11px var(--mono); color
   }
   function renderBudget(d) {
     var host = el("budgetbody"); clear(host);
+    var any = false;
     if (isNum(d.run_spent) && isNum(d.credit_cap)) {
       host.appendChild(meter("credits · this run", d.run_spent, d.credit_cap, 0.7, 0.8));
+      any = true;
     }
     if (isNum(d.monthly_used) && isNum(d.monthly_remaining)) {
       var capM = d.monthly_used + d.monthly_remaining;
       host.appendChild(meter("credits · month", d.monthly_used, capM, 0.7, 0.8));
+      any = true;
     }
     var lg = el("ledger"); clear(lg);
     function row(k, v) {
@@ -836,6 +839,7 @@ footer { margin-top: 22px; text-align: center; font: 400 11px var(--mono); color
     row("cycles today", isNum(d.cycles_today) ? d.cycles_today.toLocaleString("en-US") : null);
     row("clean streak", isNum(d.streak_days) ? Math.floor(d.streak_days) + " days" : null);
     row("gaps · 24 h", isNum(d.gaps_24h) ? String(d.gaps_24h) : null);
+    show("budget", any || lg.childNodes.length > 0);
   }
 
   /* ================================================== latest observation */
@@ -886,7 +890,13 @@ footer { margin-top: 22px; text-align: center; font: 400 11px var(--mono); color
         show("docket-sec", upcoming.length > 0);
         upcoming.forEach(function (it, i) {
           var row = div("item" + (i === 0 ? " next" : ""));
-          var when = new Date(it.t).toLocaleDateString([], { month: "short", day: "numeric" }).toLowerCase();
+          // A date-only milestone names a PROJECT calendar day; render the
+          // written date, never its previous-evening local shadow.
+          var dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(it.when);
+          var when = new Date(it.t).toLocaleDateString([], {
+            month: "short", day: "numeric",
+            timeZone: dateOnly ? "UTC" : undefined
+          }).toLowerCase();
           row.appendChild(div("when", when));
           row.appendChild(div("what", it.label));
           host.appendChild(row);
